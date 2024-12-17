@@ -61,8 +61,11 @@ public class Main {
 
         public static void printTasks (ArrayList<GlobalTask> globalTasks) {
             System.out.println("Задачи, их статус и id");
+            System.out.println();
             for (GlobalTask globalTask : globalTasks) {
                 System.out.printf(globalTask.description + " " + globalTask.status + " " + globalTask.getId() + "%n");
+            }
+            for (GlobalTask globalTask : globalTasks) {
                 if (!globalTask.subTask.isEmpty()) {
                     System.out.println("-----------------------");
                     System.out.println("Найдены подзадачи у Эпик задания: " + globalTask.description);
@@ -103,8 +106,10 @@ public class Main {
                         }
                         if (sameStatus) {
                             tasks.status = status;
-                            System.out.println("Все подзадачи у Епик выполнены. Смена статуса у Епика: " +
-                                               tasks + ", новый статус: " + status );
+                            System.out.println("Внимание! Выполнены Все подзадачи у Епик: " + tasks);
+                            System.out.println("Смена статуса! Новый статус:");
+                            System.out.println(status);
+                            System.out.println();
                         }
                     }
                 }
