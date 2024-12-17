@@ -15,11 +15,13 @@ public class Main {
         printTasks(globalTasks);
 
        GlobalTask task = globalTasks.get(1); // Получаем вторую задачу (индекс начинается с 0)
-        task.subTask.add(new Task(Status.IN_PROGRESS, "Доехать до автомойки")); // Добавляем подзадачу "Доехать до автомойки" ко второй задаче
-        task.subTask.add(new Task(Status.IN_PROGRESS, "Оплатить комплекс"));
-        System.out.println("Добавили подзадачу в Епик Помыть машину");
+        task.subTask.add(new SubTask(Status.IN_PROGRESS, "Доехать до автомойки")); // Добавляем подзадачу "Доехать до автомойки" ко второй задаче
+        task.subTask.add(new SubTask(Status.IN_PROGRESS, "Оплатить комплекс"));
+        System.out.println("Добавили подзадачи в Епик Помыть машину");
+        System.out.println();
         // Это чтобы не возиться со сканером и быстро затестить добавление. А сканнер и метод для добавления закоментить
 
+        chekSubStatusAndChangeEpicStatus(globalTasks);
 
 /*
         System.out.println("В какую задачу, Вы хотите добавить подзадачу");
@@ -46,7 +48,7 @@ public class Main {
                     System.out.println("Статус задачи изменен");
                     return;
                 }
-                for (Task subTask : task.subTask) {
+                for (SubTask subTask : task.subTask) {
                     if (subTask.description.equals(tasks)) {
                         subTask.status = Status.IN_PROGRESS;
                         System.out.println("Статус задачи изменен");
@@ -65,7 +67,7 @@ public class Main {
                 if (!globalTask.subTask.isEmpty()) {
                     System.out.println("-----------------------");
                     System.out.println("Найдены подзадачи у Эпик задания: " + globalTask.description);
-                    for (Task subTask : globalTask.subTask) {
+                    for (SubTask subTask : globalTask.subTask) {
                         System.out.println(subTask.description + " " + subTask.status + " " + subTask.taskId);
                     }
                     System.out.println("-----------------------");
@@ -78,7 +80,7 @@ public class Main {
         public static void addSubTask (ArrayList<GlobalTask> globalTasks, String epic, String subTask) {
             for (int i = 0; i < globalTasks.size(); i++) {
                 if (globalTasks.get(i).description.equals(epic)) {
-                    Task newSubTask = new Task(Status.TO_DO, subTask);
+                    SubTask newSubTask = new SubTask(Status.TO_DO, subTask);
                     globalTasks.get(i).subTask.add(newSubTask);
                     return;
                 } else {
@@ -87,11 +89,34 @@ public class Main {
             }
             System.out.println("Задача не найдена");
         }
+
+        public static void chekSubStatusAndChangeEpicStatus (ArrayList<GlobalTask> globalTasks) {
+            for (int i = 0; i < globalTasks.size(); i++) {
+                GlobalTask tasks = globalTasks.get(i);
+                if (!tasks.subTask.isEmpty()) {
+                    for (Status status : Status.values()) {
+                        boolean sameStatus = true;
+                        for (int j = 0; j < tasks.subTask.size(); j++) {
+                            if (!tasks.subTask.get(j).status.equals(status)) {
+                                sameStatus = false;
+                                break;
+                            }
+                        }
+                        if (sameStatus) {
+                            tasks.status = Status.IN_PROGRESS;
+                        }
+                    }
+                }
+            }
+        }
+
 }
 
-/* Я скидываю только пока узнать я вообще не зря это делаю? может я не правильно понял структуру и вообще по другому нужно делать, структуру
-Епик задача у меня это ГлобалТаск. Субзадачи это Таск. А обычные задачи это ГлобалТаск у которых просто нет подзадач. Только я не придумал как менять статус
-у Епик задачи, если все подзадачи внутри изменились на одинаковый статус. И айди я сделал, но цифры совпадут с Таском, просто то что по другому называется,
-может так они будут разделяться, этим названием Айди. Отправляю это чтобы просто получить рекомендации, шаблон или совет как это сделать. Если честно все что тут написано
-я только с помощью ЯндексГПТ смог написать, сам без помощи интелекта и часть не смог. Думаю над тем чтобы прекратить обучение, очень тяжело.
+/* Я скидываю только пока узнать я вообще не зря это делаю? может я не правильно понял структуру и вообще по другому нужно делать
+Епик задача у меня это ГлобалТаск. Субзадачи это SubTask. А обычные задачи это ГлобалТаск у которых просто нет подзадач. И айди я сделал, но цифры совпадут с Таском,
+просто то что по другому называется, может так они будут разделяться, этим названием Айди. Отправляю это чтобы просто понять я делаю то что нужно или нет. Вдруг тут все нужно снести и делать по новой.
+Все поля у меня Протектед, если нужно переделаю в приват. Методы оставил пока так. Потом если все корректно и нужно, перенесу в ГлобалТаск.
+Еквалс и ХешКод не переопределял. И без них какбудто все корректно находит. Но если что через генератор сделаю, просто не понимаю зачем это нужно.
+Также если не сложно буду рад получить советы, рекомендации. Если честно все что тут написано я только с помощью ЯндексГПТ смог написать. Очень очень сложно.
+Спасибо за обратную связь, и Хорошего Дня!
  */
