@@ -38,9 +38,8 @@ public class Main {
         Можно раскоментить, здесь добавляем субзадачи и меняем статус задачи если хотим
  */
         printTasks(globalTasks);
-
-
     }
+
         public static void changeStatus(ArrayList<GlobalTask> globalTasks, String tasks) {
             for (GlobalTask task : globalTasks) {
                 if (task.description.equals(tasks)) {
@@ -91,10 +90,10 @@ public class Main {
         }
 
         public static void chekSubStatusAndChangeEpicStatus (ArrayList<GlobalTask> globalTasks) {
-            for (int i = 0; i < globalTasks.size(); i++) {
+            for (int i = 0; i < globalTasks.size(); i++) { // весь список задач
                 GlobalTask tasks = globalTasks.get(i);
-                if (!tasks.subTask.isEmpty()) {
-                    for (Status status : Status.values()) {
+                if (!tasks.subTask.isEmpty()) { // есть ли суб задачи
+                    for (Status status : Status.values()) { // проходим по все статусам
                         boolean sameStatus = true;
                         for (int j = 0; j < tasks.subTask.size(); j++) {
                             if (!tasks.subTask.get(j).status.equals(status)) {
@@ -103,13 +102,14 @@ public class Main {
                             }
                         }
                         if (sameStatus) {
-                            tasks.status = Status.IN_PROGRESS;
+                            tasks.status = status;
+                            System.out.println("Все подзадачи у Епик выполнены. Смена статуса у Епика: " +
+                                               tasks + ", новый статус: " + status );
                         }
                     }
                 }
             }
         }
-
 }
 
 /* Я скидываю только пока узнать я вообще не зря это делаю? может я не правильно понял структуру и вообще по другому нужно делать
