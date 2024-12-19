@@ -1,127 +1,58 @@
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Main {
-
     public static void main(String[] args) {
+        TaskManager manager = new TaskManager();
 
-        Scanner scanner = new Scanner(System.in);
-        ArrayList<GlobalTask> globalTasks = new ArrayList<>();
-        globalTasks.add(new GlobalTask(Status.TO_DO, "Переезд"));
-        globalTasks.add(new GlobalTask(Status.TO_DO, "Помыть машину"));
-        globalTasks.add(new GlobalTask(Status.IN_PROGRESS, "Сходить в магазин"));
-        globalTasks.add(new GlobalTask(Status.DONE, "Купить подарок"));
+        Task task = new Task("Сходить в магазин", Status.TO_DO);
+        manager.addInMapTask(task.getId(), task); // добавляем задачу в Мапу
+        Task task1 = new Task("Покушать лапши", Status.TO_DO);
+        manager.addInMapTask(task1.getId(), task1);
 
-        printTasks(globalTasks);
+        Epic epic = new Epic("Помыть машину", Status.TO_DO);
+        manager.addInMapEpic(epic.getId(), epic);
 
-       GlobalTask task = globalTasks.get(1); // Получаем вторую задачу (индекс начинается с 0)
-        task.subTask.add(new SubTask(Status.IN_PROGRESS, "Доехать до автомойки")); // Добавляем подзадачу "Доехать до автомойки" ко второй задаче
-        task.subTask.add(new SubTask(Status.IN_PROGRESS, "Оплатить комплекс"));
-        System.out.println("Добавили подзадачи в Епик Помыть машину");
-        System.out.println();
-        // Это чтобы не возиться со сканером и быстро затестить добавление. А сканнер и метод для добавления закоментить
+        Subtask subtask = new Subtask("Доехать до автомойки", Status.TO_DO);
+        manager.addSubtask(epic, subtask); //присваиваем субтаску ЕпикАйди Епика. Но по сути проще просто писать subtask.setEpicId(epic)
+        manager.addInMapSubtask(subtask.getId(), subtask);
+        Subtask subtasks = new Subtask("Оплатить комплекс", Status.IN_PROGRESS);
+        manager.addSubtask(epic, subtasks);
+        manager.addInMapSubtask(subtasks.getId(), subtasks);
 
-        chekSubStatusAndChangeEpicStatus(globalTasks);
+        Epic epic2 = new Epic("Переезд", Status.TO_DO);
+        manager.addInMapEpic(epic2.getId(), epic2);
 
-/*
-        System.out.println("В какую задачу, Вы хотите добавить подзадачу");
-        String epic = scanner.nextLine();
-        System.out.println("Название подзадачи (статус по умолчанию TO_DO)");
-        String subTask = scanner.nextLine();
+        Subtask subtask1 = new Subtask("Собрать вещи", Status.IN_PROGRESS);
+        manager.addSubtask(epic2, subtask1); //присваиваем субтаску ЕпикАйди Епика
+        manager.addInMapSubtask(subtask1.getId(), subtask1);
+        Subtask subtask2 = new Subtask("Заказать грузчиков", Status.IN_PROGRESS);
+        manager.addSubtask(epic2, subtask2);
+        manager.addInMapSubtask(subtask2.getId(), subtask2);
 
-        addSubTask(globalTasks, epic, subTask);
+        manager.printAllTasks(); //Выводим все задачи
 
-        System.out.println("Введите задачу у которой у хотите изменить статус");
-        String tasks = scanner.nextLine();
-        changeStatus(globalTasks, tasks);
+        int id = 3; //для теста, потом можно сделать с консоли
+        Status status = Status.IN_PROGRESS; //для теста, потом можно сделать с консоли
 
-        Можно раскоментить, здесь добавляем субзадачи и меняем статус задачи если хотим
- */
-        printTasks(globalTasks);
+        manager.changeStatusForId(id, status); //меняем статус задачи по id
+
+        manager.searchForId(id); // ищем задачу по id
+
+        int epicId = 0; // вводим epicId по которому хотим чекнуть подзадачи на статус
+
+        manager.chekSubStatusAndChangeEpicStatus(epicId); // меняем статус Епика если все подзадачи выполнены
+
+        manager.searchForSubtaskForEpicId(epicId);
+
+        manager.removeTaskForId(id);
+
+        manager.removeAllTask();
     }
-
-        public static void changeStatus(ArrayList<GlobalTask> globalTasks, String tasks) {
-            for (GlobalTask task : globalTasks) {
-                if (task.description.equals(tasks)) {
-                    task.status = Status.IN_PROGRESS;  // Изменение статуса задачи
-                    System.out.println("Статус задачи изменен");
-                    return;
-                }
-                for (SubTask subTask : task.subTask) {
-                    if (subTask.description.equals(tasks)) {
-                        subTask.status = Status.IN_PROGRESS;
-                        System.out.println("Статус задачи изменен");
-                        return;
-                    }
-                }
-            }
-            System.out.println("Такой задачи нет");
-            System.out.println("----------");
-        }
-
-        public static void printTasks (ArrayList<GlobalTask> globalTasks) {
-            System.out.println("Задачи, их статус и id");
-            System.out.println();
-            for (GlobalTask globalTask : globalTasks) {
-                System.out.printf(globalTask.description + " " + globalTask.status + " " + globalTask.getId() + "%n");
-            }
-            for (GlobalTask globalTask : globalTasks) {
-                if (!globalTask.subTask.isEmpty()) {
-                    System.out.println("-----------------------");
-                    System.out.println("Найдены подзадачи у Эпик задания: " + globalTask.description);
-                    for (SubTask subTask : globalTask.subTask) {
-                        System.out.println(subTask.description + " " + subTask.status + " " + subTask.taskId);
-                    }
-                    System.out.println("-----------------------");
-
-                }
-            }
-            System.out.println();
-        }
-
-        public static void addSubTask (ArrayList<GlobalTask> globalTasks, String epic, String subTask) {
-            for (int i = 0; i < globalTasks.size(); i++) {
-                if (globalTasks.get(i).description.equals(epic)) {
-                    SubTask newSubTask = new SubTask(Status.TO_DO, subTask);
-                    globalTasks.get(i).subTask.add(newSubTask);
-                    return;
-                } else {
-                    break;
-                }
-            }
-            System.out.println("Задача не найдена");
-        }
-
-        public static void chekSubStatusAndChangeEpicStatus (ArrayList<GlobalTask> globalTasks) {
-            for (int i = 0; i < globalTasks.size(); i++) { // весь список задач
-                GlobalTask tasks = globalTasks.get(i);
-                if (!tasks.subTask.isEmpty()) { // есть ли суб задачи
-                    for (Status status : Status.values()) { // проходим по все статусам
-                        boolean sameStatus = true;
-                        for (int j = 0; j < tasks.subTask.size(); j++) {
-                            if (!tasks.subTask.get(j).status.equals(status)) {
-                                sameStatus = false;
-                                break;
-                            }
-                        }
-                        if (sameStatus) {
-                            tasks.status = status;
-                            System.out.println("Внимание! Выполнены Все подзадачи у Епик: " + tasks);
-                            System.out.println("Смена статуса! Новый статус:");
-                            System.out.println(status);
-                            System.out.println();
-                        }
-                    }
-                }
-            }
-        }
 }
 
-/* Я скидываю только пока узнать я вообще не зря это делаю? может я не правильно понял структуру и вообще по другому нужно делать
-Епик задача у меня это ГлобалТаск. Субзадачи это SubTask. А обычные задачи это ГлобалТаск у которых просто нет подзадач. И айди я сделал, но цифры совпадут с Таском,
-просто то что по другому называется, может так они будут разделяться, этим названием Айди. Отправляю это чтобы просто понять я делаю то что нужно или нет. Вдруг тут все нужно снести и делать по новой.
-Все поля у меня Протектед, если нужно переделаю в приват. Методы оставил пока так. Потом если все корректно и нужно, перенесу в ГлобалТаск.
-Еквалс и ХешКод не переопределял. И без них какбудто все корректно находит. Но если что через генератор сделаю, просто не понимаю зачем это нужно.
-Также если не сложно буду рад получить советы, рекомендации. Если честно все что тут написано я только с помощью ЯндексГПТ смог написать. Очень очень сложно.
-Спасибо за обратную связь, и Хорошего Дня!
+/* Спасибо за прошлую обратную связь. В итоге сидя днями и ночами, исчерпывая кол-во бесплатных вопросов к нейросети
+Яндекса. Все таки получилось собрать что-то похожее на решение. Мейн весь для теста как и писал ты делал, консоли не крутил
+написано вроде как что ТаскМенеджер должен уметь добавлять задачи, незнаю толи это что нужно. Буду ждать ОС и что нужно
+докрутить. Спасибо и Хорошего тебе Дня!
+p.s. Тебе удобнее если я на гит пушу? или лучше по старинке папку просто кидать?
  */
