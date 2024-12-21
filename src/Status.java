@@ -1,5 +1,5 @@
 public enum Status {
-    TO_DO,
+    NEW,
     IN_PROGRESS,
     DONE
 }

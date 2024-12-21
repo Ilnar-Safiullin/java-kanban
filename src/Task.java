@@ -1,21 +1,15 @@
 import java.util.Objects;
 
 public class Task {
+    protected String name;
     protected String description;
     protected Status status;
-    private int id;
-    protected static int idCounter = 0;
+    protected int id;
 
-    public Task(String description, Status status) {
+    public Task(String name, String description) {
         this.description = description;
-        this.status = status;
-        generateId();
-    }
-
-    public int generateId() {
-        id = idCounter;
-        idCounter++;
-        return id;
+        this.status = Status.NEW;
+        this.name = name;
     }
 
     public int getId() {
@@ -26,15 +20,6 @@ public class Task {
         this.status = newStatus;
     }
 
-    @Override
-    public String toString() {
-        return "Task{" + "description " +
-                description + '\'' +
-                ", status=" + status +
-                ", id=" + id +
-                '}';
-    }
-
     public String getDescription() {
         return description;
     }
@@ -43,14 +28,9 @@ public class Task {
         return status;
     }
 
-    public static int getIdCounter() {
-        return idCounter;
-    }
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
         Task task = (Task) object;
         return id == task.id && Objects.equals(description, task.description) && status == task.status;
     }
@@ -60,4 +40,22 @@ public class Task {
         return Objects.hash(description, status, id);
     }
 
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", id=" + id +
+                '}';
+    }
 }

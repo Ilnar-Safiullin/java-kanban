@@ -1,15 +1,12 @@
 class Subtask extends Task {
-    private int EpicId;
+    protected int epicId;
 
     public int getEpicId() {
-        return EpicId;
+        return epicId;
     }
 
-    public void setEpicId(int epicId) {
-        EpicId = epicId;
+    public Subtask(String name, String description) {
+        super(name, description);
     }
 
-    public Subtask(String description, Status status) {
-        super(description, status);
-    }
 }
