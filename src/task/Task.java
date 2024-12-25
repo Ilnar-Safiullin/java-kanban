@@ -1,4 +1,4 @@
-package Task;
+package task;
 
 import java.util.Objects;
 
@@ -18,8 +18,8 @@ public class Task {
         return this.id;
     }
 
-    public void setStatus(Status newStatus) {
-        this.status = newStatus;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public String getDescription() {
@@ -68,6 +68,5 @@ public class Task {
     public void setDescription(String description) {
         this.description = description;
     }
-
 
 }
