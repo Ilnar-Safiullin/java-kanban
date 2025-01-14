@@ -32,7 +32,7 @@ public class Task {
 
     @Override
     public int hashCode() {
-        return Objects.hash(description, status, id);
+        return Objects.hash(id);
     }
 
     public String getName() {
@@ -58,7 +58,7 @@ public class Task {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         Task task = (Task) object;
-        return id == task.id && Objects.equals(name, task.name) && Objects.equals(description, task.description) && status == task.status;
+        return id == task.id;
     }
 
     public void setId(int id) {
