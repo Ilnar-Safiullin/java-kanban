@@ -82,8 +82,17 @@ public class InMemoryTaskManagerTest {
     @Test
     public void updateEpicStatusTest() {
         subtask.setStatus(Status.IN_PROGRESS);
-        inMemoryTaskManager.updateStatusForEpic(epic);
+        inMemoryTaskManager.updateSubtask(subtask);
         assertEquals(epic.getStatus(), Status.IN_PROGRESS, "updateStatusForEpic работает не корректно");
+        assertEquals(subtask.getStatus(), Status.IN_PROGRESS, "updateSubtask работает не корректно");
+        subtask.setStatus(Status.DONE);
+        inMemoryTaskManager.updateSubtask(subtask);
+        assertEquals(epic.getStatus(), Status.DONE, "updateStatusForEpic работает не корректно");
+        assertEquals(subtask.getStatus(), Status.DONE, "updateSubtask работает не корректно");
+        Subtask subtask2 = new Subtask("Тест 2", "Тест 2", epic.getId());
+        inMemoryTaskManager.addInMapSubtask(subtask2);
+        assertEquals(epic.getStatus(), Status.IN_PROGRESS,
+                "updateStatusForEpic при добавление новой Субатаски работает не корректно");
     }
 
     @Test
@@ -165,8 +174,11 @@ public class InMemoryTaskManagerTest {
                 "Метод getHistory в InMemoryTaskManager работает не корректно");
     }
 
-    /*
-    убедитесь, что задачи, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных - это опечатка куратор сказал. Просто хранить историю должны
-     */
+    @Test
+    public void notSubtaskMakeYourEpic() {
+        Subtask subtask2 = new Subtask("Тест", "Тест", subtask.getId());
+        inMemoryTaskManager.addInMapSubtask(subtask2);
+        assertNull(inMemoryTaskManager.getSubtasksForId(subtask2.getId()), "Субтаск стал для Субтаска Эпиком");
+    }
 
 }

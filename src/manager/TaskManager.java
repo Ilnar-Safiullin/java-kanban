@@ -26,8 +26,6 @@ public interface TaskManager {
 
     Subtask getSubtasksForId(int id);
 
-    void updateStatusForEpic(Epic epic);
-
     ArrayList<Subtask> getAllSubtaskForEpicId(int id);
 
     void removeAllTask();

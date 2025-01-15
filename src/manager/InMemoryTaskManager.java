@@ -14,8 +14,7 @@ public class InMemoryTaskManager implements TaskManager {
     private HashMap<Integer, Task> tasks = new HashMap<>();
     private HashMap<Integer, Epic> epics = new HashMap<>();
     private HashMap<Integer, Subtask> subtasks = new HashMap<>();
-    HistoryManager historyManager = Managers.getDefaultHistory();
-
+    private HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
     public void addInMapTask(Task task) {
@@ -58,24 +57,26 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskForId(int id) {
-        historyManager.add(tasks.get(id));
-        return tasks.get(id);
+        Task task = tasks.get(id);
+        historyManager.add(task);
+        return task;
     }
 
     @Override
     public Epic getEpicForId(int id) {
-        historyManager.add(epics.get(id));
-        return epics.get(id);
+        Epic epic = epics.get(id);
+        historyManager.add(epic);
+        return epic;
     }
 
     @Override
     public Subtask getSubtasksForId(int id) {
-        historyManager.add(subtasks.get(id));
-        return subtasks.get(id);
+        Subtask subtask = subtasks.get(id);
+        historyManager.add(subtask);
+        return subtask;
     }
 
-    @Override
-    public void updateStatusForEpic(Epic epic) {
+    private void updateStatusForEpic(Epic epic) {
         int statusNew = 0;
         int statusDone = 0;
         if (!epic.getSubTaskIdList().isEmpty()) {
@@ -96,7 +97,7 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         epic.setStatus(Status.NEW);
-    } // Сделал публичным, если делать приватным выходиит ошибка
+    }
 
     @Override
     public ArrayList<Subtask> getAllSubtaskForEpicId(int id) {
@@ -171,6 +172,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (epics.containsKey(epic.getId())) {
             epic.setName(epic.getName());
             epic.setDescription(epic.getDescription());
+            updateStatusForEpic(epic);
         }
     }
 

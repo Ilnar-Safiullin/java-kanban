@@ -1,26 +1,17 @@
 package task;
 
-import manager.Managers;
-import manager.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TaskTest {
-    private TaskManager taskManager;
     private Task task;
 
     @BeforeEach
     public void setUp() {
-        taskManager = Managers.getDefault();
         task = new Task("Закрыть долги", "Оплатить все долги");
-        taskManager.addInMapTask(task);
-    }
-
-    @Test
-    public void addTaskInMap() {
-        assertEquals(1, taskManager.getTasks().size(), "Таск не добавляется в мапу");
+        task.setId(1);
     }
 
     @Test
@@ -33,7 +24,7 @@ public class TaskTest {
     @Test
     public void notEqualTaskToDifferentIpAndEqualDescriptions() {
         Task task3 = new Task("Чистка машины", "Помыть машину");
-        taskManager.addInMapTask(task3);
+        task3.setId(2);
         assertNotEquals(task3, task, "Таски с одинаковым Описанием но разным Айди равны");
     }
 

@@ -7,7 +7,6 @@ import task.Task;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class InMemoryHistoryManagerTest {
-
     private InMemoryHistoryManager inMemoryHistoryManager;
 
     @BeforeEach
@@ -19,8 +18,8 @@ public class InMemoryHistoryManagerTest {
     public void saveHistory() {
         Task task = new Task("Тест", "Тест");
         inMemoryHistoryManager.add(task);
-        assertEquals(1, inMemoryHistoryManager.getHistory().size(), " InMemoryHistoryManager " +
-                "Не сохраняет историю просмотров");
+        assertEquals(1, inMemoryHistoryManager.getHistory().size(),
+                " InMemoryHistoryManager Не сохраняет историю просмотров");
     }
 
     @Test
@@ -29,8 +28,8 @@ public class InMemoryHistoryManagerTest {
             Task task = new Task("Тест", "Тест");
             inMemoryHistoryManager.add(task);
         }
-        assertEquals(10, inMemoryHistoryManager.getHistory().size(), "В Листе хранится больше 10 " +
-                "записей");
+        assertEquals(10, inMemoryHistoryManager.getHistory().size(),
+                "В Листе хранится больше 10 записей");
     }
 
     @Test
@@ -39,8 +38,8 @@ public class InMemoryHistoryManagerTest {
             Task task = new Task("Тест", "Тест");
             inMemoryHistoryManager.add(task);
         }
-        assertEquals(10, inMemoryHistoryManager.getHistory().size(), "Лист не может хранить 10" +
-                " записей ");
+        assertEquals(10, inMemoryHistoryManager.getHistory().size(),
+                "Лист не может хранить 10записей ");
     }
 
 }
