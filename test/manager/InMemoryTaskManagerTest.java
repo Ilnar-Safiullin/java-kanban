@@ -25,16 +25,11 @@ public class InMemoryTaskManagerTest {
 
     @Test
     public void testAddTaskEpicSubtaskAndChekIdGenerate() {
-        for (int i = 0; i < 5; i++) {
-            inMemoryTaskManager.addInMapTask(task);
-            inMemoryTaskManager.addInMapEpic(epic);
-            inMemoryTaskManager.addInMapSubtask(subtask);
-        }
-        assertEquals(6, inMemoryTaskManager.getTasks().size(), "InMemoryTaskManager Не сохраняет " +
+        assertEquals(1, inMemoryTaskManager.getTasks().size(), "InMemoryTaskManager Не сохраняет " +
                 "Таски");
-        assertEquals(6, inMemoryTaskManager.getEpics().size(), "InMemoryTaskManager Не сохраняет " +
+        assertEquals(1, inMemoryTaskManager.getEpics().size(), "InMemoryTaskManager Не сохраняет " +
                 "Eпики");
-        assertEquals(6, inMemoryTaskManager.getSubtasks().size(), "InMemoryTaskManager Не сохраняет " +
+        assertEquals(1, inMemoryTaskManager.getSubtasks().size(), "InMemoryTaskManager Не сохраняет " +
                 "Субтаски");
         assertNotEquals(task.getId(), epic.getId(), "Не работает генератор Айди");
         assertNotEquals(task.getId(), subtask.getId(), "Не работает генератор Айди");
@@ -48,9 +43,6 @@ public class InMemoryTaskManagerTest {
                 "по Айди");
         assertNotNull(inMemoryTaskManager.getEpics(), "InMemoryTaskManager Не возвращает все Epic");
         assertNotNull(inMemoryTaskManager.getEpicForId(epic.getId()), "InMemoryTaskManager Не возвращает Epic " +
-                "по Айди");
-        assertNotNull(inMemoryTaskManager.getTasks(), "InMemoryTaskManager Не возвращает все Таски");
-        assertNotNull(inMemoryTaskManager.getTaskForId(task.getId()), "InMemoryTaskManager Не возвращает Таски " +
                 "по Айди");
         assertNotNull(inMemoryTaskManager.getSubtasks(), "InMemoryTaskManager Не возвращает все Subtask");
         assertNotNull(inMemoryTaskManager.getSubtasksForId(subtask.getId()), "InMemoryTaskManager Не возвращает " +
@@ -86,9 +78,9 @@ public class InMemoryTaskManagerTest {
         assertEquals(epic.getStatus(), Status.IN_PROGRESS, "updateStatusForEpic работает не корректно");
         assertEquals(subtask.getStatus(), Status.IN_PROGRESS, "updateSubtask работает не корректно");
         subtask.setStatus(Status.DONE);
-        inMemoryTaskManager.updateSubtask(subtask);
+        inMemoryTaskManager.updateEpic(epic);
         assertEquals(epic.getStatus(), Status.DONE, "updateStatusForEpic работает не корректно");
-        assertEquals(subtask.getStatus(), Status.DONE, "updateSubtask работает не корректно");
+        assertEquals(subtask.getStatus(), Status.DONE, "updateEpic работает не корректно");
         Subtask subtask2 = new Subtask("Тест 2", "Тест 2", epic.getId());
         inMemoryTaskManager.addInMapSubtask(subtask2);
         assertEquals(epic.getStatus(), Status.IN_PROGRESS,
@@ -96,29 +88,31 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void removeTask() {
-        for (int i = 0; i < 5; i++) {
-            inMemoryTaskManager.addInMapTask(task);
-        }
+    public void removeForIdTaskAndEpic() {
         inMemoryTaskManager.removeTaskForId(task.getId());
-        assertEquals(5, inMemoryTaskManager.getTasks().size(),
-                "inMemoryTaskManager не удаляет Таски по АЙди");
-        inMemoryTaskManager.removeAllTask();
         assertEquals(0, inMemoryTaskManager.getTasks().size(),
-                "inMemoryTaskManager не удаляет все Таски");
-    }
-
-    @Test
-    public void removeEpic() {
-        for (int i = 0; i < 5; i++) {
-            inMemoryTaskManager.addInMapEpic(epic);
-            inMemoryTaskManager.addInMapSubtask(subtask);
-        }
+                "inMemoryTaskManager не удаляет Таски по АЙди");
         inMemoryTaskManager.removeEpicForId(epic.getId());
-        assertEquals(5, inMemoryTaskManager.getEpics().size(),
+        assertEquals(0, inMemoryTaskManager.getEpics().size(),
                 "inMemoryTaskManager не удаляет Епик по Айди");
         assertEquals(0, inMemoryTaskManager.getSubtasks().size(),
                 "Субтаски прикрепленные к Эпику не удаляются после удаления Эпика");
+    }
+
+    @Test
+    public void removeForIdSubtask() {
+        inMemoryTaskManager.removeSubtaskForId(subtask.getId());
+        assertEquals(0, inMemoryTaskManager.getSubtasks().size(),
+                "inMemoryTaskManager не удаляет Субтаски по Айди");
+        assertEquals(0, inMemoryTaskManager.getEpicForId(epic.getId()).getSubTaskIdList().size(),
+                "После метода удаления Субтаски, она не удалилась из списка Эпика которому принадлежит");
+    }
+
+    @Test
+    public void removeAllTasksAndEpics() {
+        inMemoryTaskManager.removeAllTask();
+        assertEquals(0, inMemoryTaskManager.getTasks().size(),
+                "inMemoryTaskManager не работает удаление всех Тасок");
         inMemoryTaskManager.removeAllEpics();
         assertEquals(0, inMemoryTaskManager.getEpics().size(),
                 "inMemoryTaskManager не работает метод удаления всех Эпиков");
@@ -127,15 +121,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void removeSubtask() {
-        for (int i = 0; i < 5; i++) {
-            inMemoryTaskManager.addInMapSubtask(subtask);
-        }
-        inMemoryTaskManager.removeSubtaskForId(subtask.getId());
-        assertEquals(5, inMemoryTaskManager.getSubtasks().size(),
-                "inMemoryTaskManager не удаляет Субтаски по Айди");
-        assertEquals(5, inMemoryTaskManager.getEpicForId(epic.getId()).getSubTaskIdList().size(),
-                "После метода удаления Субтаски, она не удалилась из списка Эпика которому принадлежит");
+    public void removeAllSubtasks() {
         inMemoryTaskManager.removeAllSubtasks();
         assertEquals(0, inMemoryTaskManager.getSubtasks().size(),
                 "inMemoryTaskManager не работает метод на удаления всех Субтасков");
@@ -180,5 +166,5 @@ public class InMemoryTaskManagerTest {
         inMemoryTaskManager.addInMapSubtask(subtask2);
         assertNull(inMemoryTaskManager.getSubtasksForId(subtask2.getId()), "Субтаск стал для Субтаска Эпиком");
     }
-
+    // тут вроде ничего лишнего нет, что было задвоенно по ошибке и циклы убрал.
 }
