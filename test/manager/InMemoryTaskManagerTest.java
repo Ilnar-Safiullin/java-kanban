@@ -130,28 +130,6 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void checkTasksWithTheGivenIdAndTheGeneratedIdDoNotConflict() {
-        Task task2 = new Task("Тест", "Test");
-        task2.setId(task.getId());
-        inMemoryTaskManager.addInMapTask(task2);
-        assertEquals(2, inMemoryTaskManager.getTasks().size(),
-                "Task с вручную присвоенным номером АЙди(равным уже существующему Таску) не добавился");
-        Epic epic2 = new Epic("Тест", "Test");
-        epic2.setId(epic.getId());
-        inMemoryTaskManager.addInMapEpic(epic2);
-        assertEquals(2, inMemoryTaskManager.getEpics().size(),
-                "Epic с вручную присвоенным номером АЙди(равным уже существующему Epic) не добавился");
-        Subtask subtask2 = new Subtask("Тест", "Test", epic.getId());
-        subtask2.setId(subtask.getId());
-        inMemoryTaskManager.addInMapSubtask(subtask2);
-        assertEquals(2, inMemoryTaskManager.getSubtasks().size(),
-                "Subtask с вручную присвоенным номером АЙди не добавилась");
-        assertEquals(2, inMemoryTaskManager.getEpicForId(epic.getId()).getSubTaskIdList().size(),
-                "Subtask с вручную присвоенным номером Айди(равным уже существующему Subtask) не добавился " +
-                        "в список внутри Epic");
-    }
-
-    @Test
     public void getHistory() {
         inMemoryTaskManager.getTaskForId(task.getId());
         inMemoryTaskManager.getEpicForId(epic.getId());
@@ -164,7 +142,8 @@ public class InMemoryTaskManagerTest {
     public void notSubtaskMakeYourEpic() {
         Subtask subtask2 = new Subtask("Тест", "Тест", subtask.getId());
         inMemoryTaskManager.addInMapSubtask(subtask2);
-        assertNull(inMemoryTaskManager.getSubtasksForId(subtask2.getId()), "Субтаск стал для Субтаска Эпиком");
+        assertEquals(1, inMemoryTaskManager.getSubtasks().size(), "Субтаск стал для Субтаска Эпиком");
     }
-    // тут вроде ничего лишнего нет, что было задвоенно по ошибке и циклы убрал.
+    // старый тест с задачей Таск1 с текущим айди и новой задачей Таск2 с присвоенным айди от Таск 1 убрал, так как изменили id сеттер у Task. И теперь мы вручную
+    // изменили id сеттер у Task. И теперь мы вручную можем поменять у Таски Айди только если он null. И этот тест куратор сказал убирать
 }
