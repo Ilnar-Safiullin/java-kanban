@@ -57,13 +57,46 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void linkLastTest() {
+    public void removeFirstMiddleLastTest() {
+        Task task = new Task("Тест", "Тест");
+        Epic epic = new Epic("Тест", "Тест");
+        Subtask subtask = new Subtask("Тест", "Тест", 5);
+        Task task2 = new Task("Тест", "Тест");
+        Task task3 = new Task("Тест", "Тест");
+        task.setId(0);
+        epic.setId(1);
+        subtask.setId(2);
+        task2.setId(3);
+        task3.setId(4);
+        inMemoryHistoryManager.add(task);
+        inMemoryHistoryManager.add(epic);
+        inMemoryHistoryManager.add(subtask);
+        inMemoryHistoryManager.add(task2);
+        inMemoryHistoryManager.add(task3);
+        inMemoryHistoryManager.remove(epic.getId());
+        assertEquals(task, inMemoryHistoryManager.getHistory().getFirst(),
+                "после удаления из середины истории, изменился порядок истории просмотров задач");
+        assertEquals(task3, inMemoryHistoryManager.getHistory().getLast(),
+                "после удаления из середины истории, изменился порядок истории просмотров задач");
+        inMemoryHistoryManager.remove(task.getId());
+        assertEquals(subtask, inMemoryHistoryManager.getHistory().getFirst(),
+                "после удаления из начала истории, изменился порядок истории просмотров задач");
+        assertEquals(task3, inMemoryHistoryManager.getHistory().getLast(),
+                "после удаления из начала истории, изменился порядок истории просмотров задач");
+        inMemoryHistoryManager.remove(task3.getId());
+        assertEquals(subtask, inMemoryHistoryManager.getHistory().getFirst(),
+                "после удаления из конца истории, изменился порядок истории просмотров задач");
+        assertEquals(task2, inMemoryHistoryManager.getHistory().getLast(),
+                "после удаления из конца истории, изменился порядок истории просмотров задач");
+    }
+
+    @Test
+    public void removalOfTheOnlyOneNodeTest() {
         Task task = new Task("Тест", "Тест");
         task.setId(0);
         inMemoryHistoryManager.add(task);
-        assertNotNull(inMemoryHistoryManager.getFirst(), "linkLast не присвоил первой Node <first>");
-        assertNotNull(inMemoryHistoryManager.getLast(), "linkLast не присвоил первой Node <last>");
+        inMemoryHistoryManager.remove(task.getId());
+        assertNull(inMemoryHistoryManager.getFirst(), "При удалении единственной ноды, не сделали first = null");
+        assertNull(inMemoryHistoryManager.getLast(), "При удалении единственной ноды, не сделали last = null");
     }
 }
-// Хотел добавить тест на node.prev и node.next, что он адекватно присваивает эти значения но не смог сделать это.
-// Не могу создать ноду Node node = inMemoryHistoryManager.getlast(); Решил что в гет хистори впринципе это преврка и так проходит

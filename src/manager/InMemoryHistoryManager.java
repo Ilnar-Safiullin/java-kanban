@@ -20,10 +20,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    public Map<Integer, Node> getNodeMap() {
-        return nodeMap;
-    }
-
     public Node getFirst() {
         return first;
     }
@@ -77,7 +73,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (node != null) {
             if (node.prev == null) {
                 first = node.next;
-                if (!(node.next == null)) {
+                if (node.next != null) {
                     node.next.prev = null;
                 }
             } else if (node.prev != null && node.next != null) {
@@ -85,10 +81,14 @@ public class InMemoryHistoryManager implements HistoryManager {
                 node.next.prev = node.prev;
             } else {
                 last = node.prev;
-                if (!(node.prev == null)) {
+                if (node.prev != null) {
                     node.prev.next = null;
                 }
             }
+        }
+        if (nodeMap.isEmpty()) {
+            first = null;
+            last = null;
         }
     }
 }

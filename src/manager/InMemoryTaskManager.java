@@ -3,6 +3,7 @@ package manager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import task.Epic;
 import task.Task;
@@ -73,9 +74,6 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Subtask getSubtasksForId(int id) {
         Subtask subtask = subtasks.get(id);
-        if (!subtasks.containsKey(id)) {
-            return null;
-        }
         historyManager.add(subtask);
         return subtask;
     }
@@ -117,22 +115,22 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeAllTask() {
-        for (Map.Entry<Integer, Task> entry : tasks.entrySet()) {
-            Integer id = entry.getKey();
-            historyManager.remove(id);
+        Set<Integer> keys = tasks.keySet();
+        for (Integer key : keys) {
+            historyManager.remove(key);
         }
         tasks.clear();
     }
 
     @Override
     public void removeAllEpics() {
-        for (Map.Entry<Integer, Epic> entry : epics.entrySet()) {
-            Integer id = entry.getKey();
-            historyManager.remove(id);
+        Set<Integer> keys = epics.keySet();
+        for (Integer key : keys) {
+            historyManager.remove(key);
         }
-        for (Map.Entry<Integer, Subtask> entry : subtasks.entrySet()) {
-            Integer id = entry.getKey();
-            historyManager.remove(id);
+        Set<Integer> keysSebtask = subtasks.keySet();
+        for (Integer key : keysSebtask) {
+            historyManager.remove(key);
         }
         epics.clear();
         subtasks.clear();
@@ -140,9 +138,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeAllSubtasks() {
-        for (Map.Entry<Integer, Subtask> entry : subtasks.entrySet()) {
-            Integer id = entry.getKey();
-            historyManager.remove(id);
+        Set<Integer> keys = subtasks.keySet();
+        for (Integer key : keys) {
+            historyManager.remove(key);
         }
         for (Epic epic : epics.values()) {
             epic.getSubTaskIdList().clear();

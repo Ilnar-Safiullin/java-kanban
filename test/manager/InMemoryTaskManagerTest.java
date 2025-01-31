@@ -144,6 +144,5 @@ public class InMemoryTaskManagerTest {
         inMemoryTaskManager.addInMapSubtask(subtask2);
         assertEquals(1, inMemoryTaskManager.getSubtasks().size(), "Субтаск стал для Субтаска Эпиком");
     }
-    // старый тест с задачей Таск1 с текущим айди и новой задачей Таск2 с присвоенным айди от Таск 1 убрал, так как изменили id сеттер у Task. И теперь мы вручную
-    // изменили id сеттер у Task. И теперь мы вручную можем поменять у Таски Айди только если он null. И этот тест куратор сказал убирать
+
 }
