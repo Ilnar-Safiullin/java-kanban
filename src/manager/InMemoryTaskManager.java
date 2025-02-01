@@ -127,8 +127,8 @@ public class InMemoryTaskManager implements TaskManager {
         for (Integer key : keys) {
             historyManager.remove(key);
         }
-        Set<Integer> keysSebtask = subtasks.keySet();
-        for (Integer key : keysSebtask) {
+        Set<Integer> keysSubtask = subtasks.keySet();
+        for (Integer key : keysSubtask) {
             historyManager.remove(key);
         }
         epics.clear();

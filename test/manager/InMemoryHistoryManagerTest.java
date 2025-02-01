@@ -6,87 +6,82 @@ import task.Epic;
 import task.Subtask;
 import task.Task;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class InMemoryHistoryManagerTest {
-    private InMemoryHistoryManager inMemoryHistoryManager;
+    private InMemoryHistoryManager historyManager;
+    Task task;
+    Epic epic;
+    Subtask subtask;
 
     @BeforeEach
     public void setUp() {
-        inMemoryHistoryManager = new InMemoryHistoryManager();
+        historyManager = new InMemoryHistoryManager();
+        task = new Task("Тест", "Тест");
+        epic = new Epic("Тест", "Тест");
+        subtask = new Subtask("Тест", "Тест", 5);
+        task.setId(0);
+        epic.setId(1);
+        subtask.setId(2);
     }
 
     @Test
     public void saveHistory() {
-        Task task = new Task("Тест", "Тест");
-        task.setId(0);
-        inMemoryHistoryManager.add(task);
-        Epic epic1 = new Epic("Test", "Test");
-        epic1.setId(1);
-        inMemoryHistoryManager.add(epic1);
-        Subtask subtask1 = new Subtask("Test", "Test", epic1.getId());
-        subtask1.setId(2);
-        inMemoryHistoryManager.add(subtask1);
-        assertEquals(3, inMemoryHistoryManager.getHistory().size(),
-                " InMemoryHistoryManager Не сохраняет историю просмотров");
+        historyManager.add(task);
+        historyManager.add(epic);
+        historyManager.add(subtask);
+        assertEquals(3, historyManager.getHistory().size(),
+                " historyManager Не сохраняет историю просмотров");
     }
 
     @Test
     public void saveUniqueHistory() {
-        Task task = new Task("Тест", "Тест");
-        task.setId(1);
-        inMemoryHistoryManager.add(task);
-        inMemoryHistoryManager.add(task);
-        assertEquals(1, inMemoryHistoryManager.getHistory().size(),
-                " InMemoryHistoryManager дублирует айди в истории");
+        historyManager.add(task);
+        historyManager.add(task);
+        assertEquals(1, historyManager.getHistory().size(),
+                " historyManager дублирует айди в истории");
     }
 
     @Test
     public void removeAndGetHistoryTest() {
-        Task task = new Task("Тест", "Тест");
-        task.setId(0);
-        Task task2 = new Task("Тест", "Тест");
-        task2.setId(1);
-        inMemoryHistoryManager.add(task);
-        inMemoryHistoryManager.add(task2);
-        assertEquals(2, inMemoryHistoryManager.getHistory().size(),
-                " GetHistory работает не корректно");
-        inMemoryHistoryManager.remove(task.getId());
-        assertEquals(1, inMemoryHistoryManager.getHistory().size(),
-                "InMemoryHistoryManager не удаляет задачи из истории");
+        historyManager.add(task);
+        historyManager.add(epic);
+        assertEquals(2, historyManager.getHistory().size(),
+                " getHistory работает не корректно");
+        historyManager.remove(task.getId());
+        assertEquals(1, historyManager.getHistory().size(),
+                "historyManager не удаляет задачи из истории");
     }
 
     @Test
-    public void removeFirstMiddleLastTest() {
-        Task task = new Task("Тест", "Тест");
-        Epic epic = new Epic("Тест", "Тест");
-        Subtask subtask = new Subtask("Тест", "Тест", 5);
-        Task task2 = new Task("Тест", "Тест");
-        Task task3 = new Task("Тест", "Тест");
-        task.setId(0);
-        epic.setId(1);
-        subtask.setId(2);
-        task2.setId(3);
-        task3.setId(4);
-        inMemoryHistoryManager.add(task);
-        inMemoryHistoryManager.add(epic);
-        inMemoryHistoryManager.add(subtask);
-        inMemoryHistoryManager.add(task2);
-        inMemoryHistoryManager.add(task3);
-        inMemoryHistoryManager.remove(epic.getId());
-        assertEquals(task, inMemoryHistoryManager.getHistory().getFirst(),
-                "после удаления из середины истории, изменился порядок истории просмотров задач");
-        assertEquals(task3, inMemoryHistoryManager.getHistory().getLast(),
-                "после удаления из середины истории, изменился порядок истории просмотров задач");
-        inMemoryHistoryManager.remove(task.getId());
-        assertEquals(subtask, inMemoryHistoryManager.getHistory().getFirst(),
+    public void removeFirstTest() {
+        historyManager.add(task);
+        historyManager.add(epic);
+        historyManager.add(subtask);
+        historyManager.remove(task.getId());
+        assertEquals(List.of(epic, subtask), historyManager.getHistory(),
                 "после удаления из начала истории, изменился порядок истории просмотров задач");
-        assertEquals(task3, inMemoryHistoryManager.getHistory().getLast(),
-                "после удаления из начала истории, изменился порядок истории просмотров задач");
-        inMemoryHistoryManager.remove(task3.getId());
-        assertEquals(subtask, inMemoryHistoryManager.getHistory().getFirst(),
-                "после удаления из конца истории, изменился порядок истории просмотров задач");
-        assertEquals(task2, inMemoryHistoryManager.getHistory().getLast(),
+    }
+
+    @Test
+    public void removeMiddleTest() {
+        historyManager.add(task);
+        historyManager.add(epic);
+        historyManager.add(subtask);
+        historyManager.remove(epic.getId());
+        assertEquals(List.of(task, subtask), historyManager.getHistory(),
+                "после удаления из середины истории, изменился порядок истории просмотров задач");
+    }
+
+    @Test
+    public void removeLastTest() {
+        historyManager.add(task);
+        historyManager.add(epic);
+        historyManager.add(subtask);
+        historyManager.remove(subtask.getId());
+        assertEquals(List.of(task, epic), historyManager.getHistory(),
                 "после удаления из конца истории, изменился порядок истории просмотров задач");
     }
 
@@ -94,9 +89,9 @@ public class InMemoryHistoryManagerTest {
     public void removalOfTheOnlyOneNodeTest() {
         Task task = new Task("Тест", "Тест");
         task.setId(0);
-        inMemoryHistoryManager.add(task);
-        inMemoryHistoryManager.remove(task.getId());
-        assertNull(inMemoryHistoryManager.getFirst(), "При удалении единственной ноды, не сделали first = null");
-        assertNull(inMemoryHistoryManager.getLast(), "При удалении единственной ноды, не сделали last = null");
+        historyManager.add(task);
+        historyManager.remove(task.getId());
+        assertEquals(0, historyManager.getHistory().size(),
+                "при удалении единственной ноды, не сделали first = null");
     }
 }

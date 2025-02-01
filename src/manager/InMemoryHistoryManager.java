@@ -20,14 +20,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    public Node getFirst() {
-        return first;
-    }
-
-    public Node getLast() {
-        return last;
-    }
-
     private Map<Integer, Node> nodeMap = new HashMap<>();
     private Node first;
     private Node last;
@@ -71,24 +63,21 @@ public class InMemoryHistoryManager implements HistoryManager {
     public void remove(int id) {
         final Node node = nodeMap.remove(id);
         if (node != null) {
-            if (node.prev == null) {
-                first = node.next;
-                if (node.next != null) {
-                    node.next.prev = null;
+            if (node.prev != null) {
+                node.prev.next = node.next; //тут может записаться как null так и ссылка на следующую ноду, таким образом мы избавляемся от необходимости снова возвращаться к этой ссылке
+                if (node.next == null) { //если же дальше больше нет нод, то мы делаем предыдущую ноду последней
+                    last = node.prev;
+                } else {  // если нода есть, даем ей ссылку на предыдущую ноду
+                    node.next.prev = node.prev;
                 }
-            } else if (node.prev != null && node.next != null) {
-                node.prev.next = node.next;
-                node.next.prev = node.prev;
-            } else {
-                last = node.prev;
-                if (node.prev != null) {
-                    node.prev.next = null;
+            } else { // node == first, остался случай когда мы удаляем первую ноду
+                first = node.next; //присваиваем первой ноде ссылку на следующую ноду, если следующей ноды нет, то присвоится null
+                if (first == null) { //если была удалена единственная нода, обнуляем last
+                    last = null;
+                } else { //если нода не единственная - обнуляем ссылку на предыдущую ноду
+                    first.prev = null;
                 }
             }
-        }
-        if (nodeMap.isEmpty()) {
-            first = null;
-            last = null;
         }
     }
 }
