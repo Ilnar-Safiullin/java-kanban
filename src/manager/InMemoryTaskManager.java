@@ -2,6 +2,7 @@ package manager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import task.Epic;
 import task.Task;
@@ -113,17 +114,33 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeAllTask() {
+        Set<Integer> keys = tasks.keySet();
+        for (Integer key : keys) {
+            historyManager.remove(key);
+        }
         tasks.clear();
     }
 
     @Override
     public void removeAllEpics() {
+        Set<Integer> keys = epics.keySet();
+        for (Integer key : keys) {
+            historyManager.remove(key);
+        }
+        Set<Integer> keysSubtask = subtasks.keySet();
+        for (Integer key : keysSubtask) {
+            historyManager.remove(key);
+        }
         epics.clear();
         subtasks.clear();
     }
 
     @Override
     public void removeAllSubtasks() {
+        Set<Integer> keys = subtasks.keySet();
+        for (Integer key : keys) {
+            historyManager.remove(key);
+        }
         for (Epic epic : epics.values()) {
             epic.getSubTaskIdList().clear();
             epic.setStatus(Status.NEW);
@@ -134,6 +151,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeTaskForId(int id) {
         tasks.remove(id);
+        historyManager.remove(id);
     }
 
     @Override
@@ -142,8 +160,10 @@ public class InMemoryTaskManager implements TaskManager {
             Epic epic = epics.get(id);
             for (Integer subtaskId : epic.getSubTaskIdList()) {
                 subtasks.remove(subtaskId);
+                historyManager.remove(subtaskId);
             }
             epics.remove(id);
+            historyManager.remove(id);
         }
     }
 
@@ -155,6 +175,7 @@ public class InMemoryTaskManager implements TaskManager {
             epi.getSubTaskIdList().remove(Integer.valueOf(idSub));
             subtasks.remove(idSub);
             updateStatusForEpic(epi);
+            historyManager.remove(idSub);
         }
     }
 
@@ -190,5 +211,4 @@ public class InMemoryTaskManager implements TaskManager {
     public ArrayList<Task> getHistory() {
         return historyManager.getHistory();
     }
-
 }

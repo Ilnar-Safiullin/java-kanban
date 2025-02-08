@@ -6,7 +6,7 @@ public class Task {
     protected String name;
     protected String description;
     protected Status status;
-    protected int id;
+    protected Integer id;
 
     public Task(String name, String description) {
         this.description = description;
@@ -14,7 +14,7 @@ public class Task {
         this.name = name;
     }
 
-    public int getId() {
+    public Integer getId() {
         return this.id;
     }
 
@@ -62,7 +62,9 @@ public class Task {
     }
 
     public void setId(int id) {
-        this.id = id;
+        if (this.id == null) {
+            this.id = id;
+        }
     }
 
     public void setDescription(String description) {
