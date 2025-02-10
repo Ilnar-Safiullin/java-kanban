@@ -216,15 +216,15 @@ public class InMemoryTaskManager implements TaskManager {
         this.idCounter = idCounter;
     }
 
-    public boolean taskContainsKey (Integer id) {
+    public boolean taskContainsKey(Integer id) {
         return tasks.containsKey(id);
     }
 
-    public boolean epicContainsKey (Integer id) {
+    public boolean epicContainsKey(Integer id) {
         return epics.containsKey(id);
     }
 
-    public boolean subtaskContainsKey (Integer id) {
+    public boolean subtaskContainsKey(Integer id) {
         return subtasks.containsKey(id);
     }
 }
