@@ -3,7 +3,8 @@ package task;
 public class Subtask extends Task {
     protected Integer epicId;
 
-    public int getEpicId() {
+    @Override
+    public Integer getEpicId() {
         return epicId;
     }
 
@@ -12,9 +13,19 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
+    public Subtask(Integer id, String name, String description, Integer epicId) {
+        super(id, name, description);
+        this.epicId = epicId;
+    }
+
     public void setEpicId(int epicId) {
         if (this.epicId == null) {
             this.epicId = epicId;
         }
+    }
+
+    @Override
+    public TaskType getTaskType() {
+        return TaskType.SUBTASK;
     }
 }

@@ -15,7 +15,7 @@ public class InMemoryTaskManager implements TaskManager {
     private HashMap<Integer, Task> tasks = new HashMap<>();
     private HashMap<Integer, Epic> epics = new HashMap<>();
     private HashMap<Integer, Subtask> subtasks = new HashMap<>();
-    private HistoryManager historyManager = Managers.getDefaultHistory();
+    protected HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
     public void addInMapTask(Task task) {
@@ -210,5 +210,21 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public ArrayList<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    public void setIdCounter(int idCounter) {
+        this.idCounter = idCounter;
+    }
+
+    public boolean taskContainsKey (Integer id) {
+        return tasks.containsKey(id);
+    }
+
+    public boolean epicContainsKey (Integer id) {
+        return epics.containsKey(id);
+    }
+
+    public boolean subtaskContainsKey (Integer id) {
+        return subtasks.containsKey(id);
     }
 }
