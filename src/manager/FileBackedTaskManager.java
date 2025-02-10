@@ -6,8 +6,6 @@ import task.Task;
 import task.TaskType;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     static File file;
@@ -22,8 +20,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         FileBackedTaskManager managerRestored = Managers.getDefault();
         managerRestored.loadFromFile(file);
         System.out.println(managerRestored.inMemoryTaskManager.getTasks());
-
-
+        System.out.println(managerRestored.inMemoryTaskManager.getEpics());
+        System.out.println(managerRestored.inMemoryTaskManager.getSubtasks());
+        System.out.println(managerRestored.inMemoryTaskManager.getHistory());
     }
 
     public static void loadFromFile(File file) {
@@ -41,12 +40,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         }
                     } else if (data[1].equals(TaskType.EPIC.toString())) {
                         Epic epic = (Epic) CSVTaskFormat.taskFromString(line);
-                        inMemoryTaskManager.addInMapTask(epic);
+                        addTask(epic);
                         if (Integer.parseInt(data[0]) > maxIdNumber) {
                             maxIdNumber = Integer.parseInt(data[0]);
                         }
                     } else if (data[1].equals(TaskType.SUBTASK.toString())) {
                         Subtask subtask = (Subtask) CSVTaskFormat.taskFromString(line);
+                        addTask(subtask);
                         if (Integer.parseInt(data[0]) > maxIdNumber) {
                             maxIdNumber = Integer.parseInt(data[0]);
                         }
@@ -104,10 +104,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         } else if (task.getTaskType() == TaskType.EPIC) {
             Epic epic = new Epic(task.getId(), task.getName(), task.getDescription());
             epic.setStatus(task.getStatus());
-            inMemoryTaskManager.addInMapTask(epic);
+            inMemoryTaskManager.addInMapEpic(epic);
         } else {
             Subtask subtask = new Subtask(task.getId(), task.getName(), task.getDescription(), task.getEpicId());
             subtask.setStatus(task.getStatus());
+            inMemoryTaskManager.addInMapSubtask(subtask);
         }
         inMemoryTaskManager.setIdCounter(maxIdNumber);
     }

@@ -28,4 +28,16 @@ public class Subtask extends Task {
     public TaskType getTaskType() {
         return TaskType.SUBTASK;
     }
+
+    @Override
+    public String toString() {
+        return "Class.Subtask{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", id=" + id +
+                ", epicId=" + epicId +
+                '}';
+    }
+
 }
