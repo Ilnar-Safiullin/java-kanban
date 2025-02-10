@@ -19,9 +19,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     public static void main(String[] args) {
-        TaskManager managerRestored = Managers.getDefault();
-        FileBackedTaskManager.loadFromFile(file);
-        System.out.println(managerRestored.getTasks());
+        FileBackedTaskManager managerRestored = Managers.getDefault();
+        managerRestored.loadFromFile(file);
+        System.out.println(managerRestored.inMemoryTaskManager.getTasks());
 
 
     }
