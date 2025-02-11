@@ -6,6 +6,8 @@ import task.Task;
 import task.TaskType;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     static File file;
@@ -17,35 +19,50 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     public static void main(String[] args) {
-        FileBackedTaskManager managerRestored = Managers.getDefault();
-        managerRestored.loadFromFile(file);
-        System.out.println(managerRestored.inMemoryTaskManager.getTasks());
-        System.out.println(managerRestored.inMemoryTaskManager.getEpics());
-        System.out.println(managerRestored.inMemoryTaskManager.getSubtasks());
-        System.out.println(managerRestored.inMemoryTaskManager.getHistory());
+        File file = new File("C:\\Users\\Ilnar\\Documents\\resources\\task.csv");
+        FileBackedTaskManager managerRestored = FileBackedTaskManager.loadFromFile(file);
+        System.out.println(inMemoryTaskManager.getTasks());
+        System.out.println(inMemoryTaskManager.getEpics());
+        System.out.println(inMemoryTaskManager.getSubtasks());
+        System.out.println("История :" + inMemoryTaskManager.getHistory());
+        Task task3 = new Task("Test 8", "Test 9");
+        managerRestored.addInMapTask(task3);
+        System.out.println(inMemoryTaskManager.getTasks());
+        System.out.println("История :" + inMemoryTaskManager.getHistory());
+        /*
+        Сергей привет, я пока отправляю на проверку в контексте правильно ли я вообще двигаюсь? у меня inMemoryTaskManager
+        находится в поле текущего класса, а это наверное не верный вариант. Я спрашивал у Куратора но он послал к ревью (
+
+        Извини что дергаю тебя, боюсь просто что нужно будет все снести и заного делать, а я это то 3 дня рожаю уже. Я так
+        думаю что мне нужно будет вообще все снести и по новой делать, хоть я и тестил здесь в мейне что он восстанавливается с файла,
+        но должно ли это так выглядить хз. Спасибо большое!
+         */
     }
 
-    public static void loadFromFile(File file) {
+    public static FileBackedTaskManager loadFromFile(File file) {
+        FileBackedTaskManager managerRestored = new FileBackedTaskManager(file);
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
-                boolean b = data.length > 0;
                 if (data.length > 1) {
                     if (data[1].equals(TaskType.TASK.toString())) {
                         Task task = CSVTaskFormat.taskFromString(line);
+                        inMemoryTaskManager.setIdCounter(task.getId());
                         addTask(task);
                         if (Integer.parseInt(data[0]) > maxIdNumber) {
                             maxIdNumber = Integer.parseInt(data[0]);
                         }
                     } else if (data[1].equals(TaskType.EPIC.toString())) {
                         Epic epic = (Epic) CSVTaskFormat.taskFromString(line);
+                        inMemoryTaskManager.setIdCounter(epic.getId());
                         addTask(epic);
                         if (Integer.parseInt(data[0]) > maxIdNumber) {
                             maxIdNumber = Integer.parseInt(data[0]);
                         }
                     } else if (data[1].equals(TaskType.SUBTASK.toString())) {
                         Subtask subtask = (Subtask) CSVTaskFormat.taskFromString(line);
+                        inMemoryTaskManager.setIdCounter(subtask.getId());
                         addTask(subtask);
                         if (Integer.parseInt(data[0]) > maxIdNumber) {
                             maxIdNumber = Integer.parseInt(data[0]);
@@ -65,7 +82,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     }
                 }
             }
-            inMemoryTaskManager.setIdCounter(maxIdNumber);
+            ++maxIdNumber;
         } catch (IOException e) {
             System.out.println("Ошибка при чтении файла: " + e.getMessage());
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -73,23 +90,29 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         } catch (NumberFormatException e) {
             System.out.println("Ошибка преобразования числа: " + e.getMessage());
         }
-
+        return managerRestored;
     }
 
     protected void save() {
+        File file = new File("C:\\Users\\Ilnar\\Documents\\resources\\task.csv");
+        Path path = file.toPath();
+        if (!Files.exists(path)) {
+            try {
+                Files.createFile(path);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write("id,type,name,status,description,epic\n");
-            for (Task task : getTasks()) {
+            for (Task task : inMemoryTaskManager.getTasks()) {
                 writer.write(CSVTaskFormat.toString(task) + "\n");
-                writer.newLine();
             }
-            for (Epic epic : getEpics()) {
+            for (Epic epic : inMemoryTaskManager.getEpics()) {
                 writer.write(CSVTaskFormat.toString(epic) + "\n");
-                writer.newLine();
             }
-            for (Subtask subtask : getSubtasks()) {
+            for (Subtask subtask : inMemoryTaskManager.getSubtasks()) {
                 writer.write(CSVTaskFormat.toString(subtask) + "\n");
-                writer.newLine();
             }
             writer.write("\n");
             writer.write(CSVTaskFormat.toString(inMemoryTaskManager.getHistory()));
@@ -119,27 +142,29 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public void addInMapTask(Task task) {
-        super.addInMapTask(task);
-        save();
-    }
-
-    @Override
-    public void addInMapEpic(Epic epic) {
-        super.addInMapEpic(epic);
-        save();
-    }
-
-    @Override
-    public void addInMapSubtask(Subtask subtask) {
-        super.addInMapSubtask(subtask);
+        if (task.getTaskType() == TaskType.TASK) {
+            inMemoryTaskManager.setIdCounter(maxIdNumber);
+            ++maxIdNumber;
+            inMemoryTaskManager.addInMapTask(task);
+        } else if (task.getTaskType() == TaskType.EPIC) {
+            Epic epic = new Epic(task.getId(), task.getName(), task.getDescription());
+            inMemoryTaskManager.setIdCounter(maxIdNumber);
+            ++maxIdNumber;
+            inMemoryTaskManager.addInMapEpic(epic);
+        } else {
+            Subtask subtask = new Subtask(task.getId(), task.getName(), task.getDescription(), task.getEpicId());
+            inMemoryTaskManager.setIdCounter(maxIdNumber);
+            ++maxIdNumber;
+            inMemoryTaskManager.addInMapSubtask(subtask);
+        }
         save();
     }
 
     @Override
     public Task getTaskForId(int id) {
         Task task = super.getTaskForId(id);
-        save();
         historyManager.add(task);
+        save();
         return task;
     }
 

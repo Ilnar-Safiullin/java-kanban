@@ -53,7 +53,7 @@ public class CSVTaskFormat {
         return history;
     }
 
-    public static List<Integer> historyFromString(String value) {
+    public static List<Integer> historyFromString(String value) { //Этот метод не применяю поэтому не трогал пока
         String[] numbers = value.split(",");
         List<Integer> result = new ArrayList<>();
         for (String num : numbers) {
