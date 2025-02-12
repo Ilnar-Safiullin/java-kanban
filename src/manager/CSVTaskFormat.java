@@ -2,7 +2,6 @@ package manager;
 
 import task.*;
 
-import java.util.ArrayList;
 
 public class CSVTaskFormat {
 
@@ -38,17 +37,5 @@ public class CSVTaskFormat {
             epic.setStatus(status);
             return epic;
         }
-    }
-
-    public static String toString(ArrayList<Task> tasks) { //тут мы записываем историю в файл
-        StringBuilder sb = new StringBuilder();
-        for (Task task : tasks) {
-            sb.append(task.getId()).append(",");
-        }
-        if (!sb.isEmpty()) {
-            sb.deleteCharAt(sb.length() - 1);
-        }
-        String history = sb.toString();
-        return history;
     }
 }

@@ -81,8 +81,4 @@ public class Task {
     public TaskType getTaskType() {
         return TaskType.TASK;
     }
-
-    public Integer getEpicId() {
-        return 0;
-    }
 }

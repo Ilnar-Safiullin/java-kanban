@@ -3,7 +3,6 @@ package task;
 public class Subtask extends Task {
     protected Integer epicId;
 
-    @Override
     public Integer getEpicId() {
         return epicId;
     }
