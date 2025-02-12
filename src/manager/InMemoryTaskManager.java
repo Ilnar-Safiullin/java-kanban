@@ -10,11 +10,11 @@ import task.Subtask;
 import task.Status;
 
 public class InMemoryTaskManager implements TaskManager {
-    private int idCounter = 0;
+    protected int idCounter = 0;
 
-    private HashMap<Integer, Task> tasks = new HashMap<>();
-    private HashMap<Integer, Epic> epics = new HashMap<>();
-    private HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    protected HashMap<Integer, Task> tasks = new HashMap<>();
+    protected HashMap<Integer, Epic> epics = new HashMap<>();
+    protected HashMap<Integer, Subtask> subtasks = new HashMap<>();
     protected HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
@@ -210,21 +210,5 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public ArrayList<Task> getHistory() {
         return historyManager.getHistory();
-    }
-
-    public void setIdCounter(int idCounter) {
-        this.idCounter = idCounter;
-    }
-
-    public boolean taskContainsKey(Integer id) {
-        return tasks.containsKey(id);
-    }
-
-    public boolean epicContainsKey(Integer id) {
-        return epics.containsKey(id);
-    }
-
-    public boolean subtaskContainsKey(Integer id) {
-        return subtasks.containsKey(id);
     }
 }

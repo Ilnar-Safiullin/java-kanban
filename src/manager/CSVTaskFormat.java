@@ -3,7 +3,6 @@ package manager;
 import task.*;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class CSVTaskFormat {
 
@@ -41,7 +40,7 @@ public class CSVTaskFormat {
         }
     }
 
-    public static String toString(ArrayList<Task> tasks) {
+    public static String toString(ArrayList<Task> tasks) { //тут мы записываем историю в файл
         StringBuilder sb = new StringBuilder();
         for (Task task : tasks) {
             sb.append(task.getId()).append(",");
@@ -51,14 +50,5 @@ public class CSVTaskFormat {
         }
         String history = sb.toString();
         return history;
-    }
-
-    public static List<Integer> historyFromString(String value) { //Этот метод не применяю поэтому не трогал пока
-        String[] numbers = value.split(",");
-        List<Integer> result = new ArrayList<>();
-        for (String num : numbers) {
-            result.add(Integer.parseInt(num));
-        }
-        return result;
     }
 }
