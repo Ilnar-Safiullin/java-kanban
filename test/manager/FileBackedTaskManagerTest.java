@@ -20,8 +20,8 @@ public class FileBackedTaskManagerTest {
         assertEquals(1, managerRestored.getSubtasks().size(), "loadFromFile() не восстановил Субтаски");
         assertEquals(1, managerRestored.getEpicForId(2).getSubTaskIdList().size(),
                 "loadFromFile не связал Эпик с Субтаской");
-
-    /*  Содержание файла "task.csv"
+    /*
+    Содержание файла "task.csv"
     id,type,name,status,description,epic
     1,TASK,Test 3,NEW,Test
     2,EPIC,Test 3,NEW,Test
@@ -30,11 +30,11 @@ public class FileBackedTaskManagerTest {
     }
 
     @Test
-    public void saveTest() { //сперва мы проверяем loadFromFileTest(), если он работает корректно то с помощью него мы проверим метод save(), чтобы не использовать буфер/файлРидер
+    public void saveTest() { //сперва мы проверяем loadFromFileTest(), если он работает корректно то с помощью него мы проверим метод save(), чтобы не использовать буфер/файлРидер.
         Task task = new Task(10, "Task", "Test");
         Epic epic = new Epic(11, "Epic", "Test");
         Subtask subtask = new Subtask(12, "Subtask", "Test", 11);
-        file = new File(".\\resources\\testTask.csv");
+        file = new File(".\\resources\\testTask.csv"); //Удалите файл testTask из папки resources
         managerRestored = new FileBackedTaskManager(file);
         managerRestored.tasks.put(task.getId(), task);
         managerRestored.epics.put(epic.getId(), epic);
