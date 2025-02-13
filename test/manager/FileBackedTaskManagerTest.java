@@ -13,7 +13,7 @@ public class FileBackedTaskManagerTest {
 
     @Test
     public void loadFromFileTest() {
-        file = new File(".\\resources\\task.csv");
+        file = new File("./resources/task.csv");
         managerRestored = FileBackedTaskManager.loadFromFile(file);
         assertEquals(1, managerRestored.getTasks().size(), "loadFromFile() не восстановил Таски");
         assertEquals(1, managerRestored.getEpics().size(), "loadFromFile() не восстановил Епики");
@@ -34,7 +34,7 @@ public class FileBackedTaskManagerTest {
         Task task = new Task(10, "Task", "Test");
         Epic epic = new Epic(11, "Epic", "Test");
         Subtask subtask = new Subtask(12, "Subtask", "Test", 11);
-        file = new File(".\\resources\\testTask.csv"); //Удалите файл testTask из папки resources
+        file = new File("./resources/testTask.csv"); //Удалите файл testTask из папки resources
         managerRestored = new FileBackedTaskManager(file);
         managerRestored.tasks.put(task.getId(), task);
         managerRestored.epics.put(epic.getId(), epic);

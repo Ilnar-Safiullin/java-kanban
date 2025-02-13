@@ -14,7 +14,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     public static void main(String[] args) {
-        File file = new File(".\\resources\\task.csv");
+        File file = new File("./resources/task.csv");
         FileBackedTaskManager managerRestored = FileBackedTaskManager.loadFromFile(file);
         System.out.println(managerRestored.getTasks());
         System.out.println(managerRestored.getEpics());
@@ -26,6 +26,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         System.out.println("===============");
         managerRestored.removeTaskForId(1);
         System.out.println(managerRestored.getTasks());
+        /*
+        Спасибо большое за твои рекомендации очень и очень помогло, вроде все сделал) Хорошего тебе дня!
+         */
+
+
     }
 
     public static FileBackedTaskManager loadFromFile(File file) {
