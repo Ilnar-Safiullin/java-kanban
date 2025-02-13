@@ -41,7 +41,7 @@ public class FileBackedTaskManagerTest {
         managerRestored.subtasks.put(subtask.getId(), subtask);
         managerRestored.save();
         managerRestored = FileBackedTaskManager.loadFromFile(file);
-        assertTrue(new File(".\\resources\\testTask.csv").exists(), "save() не создал файл");
+        assertTrue(new File("./resources/testTask.csv").exists(), "save() не создал файл");
         assertNotNull(managerRestored.getTaskForId(task.getId()), "save() не сохранил Таски");
         assertNotNull(managerRestored.getEpicForId(epic.getId()), "save() не сохранил Епики");
         assertNotNull(managerRestored.getSubtasksForId(subtask.getId()), "save() не сохранил Субтаски");
