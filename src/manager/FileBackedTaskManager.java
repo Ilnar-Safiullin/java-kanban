@@ -27,7 +27,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         managerRestored.removeTaskForId(1);
         System.out.println(managerRestored.getTasks());
         /*
-        Спасибо большое за твои рекомендации очень и очень помогло, вроде все сделал) Хорошего тебе дня!
+        Спасибо все исправил) Хороших Выходных)
          */
 
 
@@ -59,11 +59,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         break;
                 }
             }
-            if (!managerRestored.subtasks.isEmpty()) {
-                for (Subtask subtask : managerRestored.subtasks.values()) {
-                    Epic epic = managerRestored.epics.get(subtask.getEpicId());
-                    epic.getSubTaskIdList().add(subtask.getId());
-                }
+            for (Subtask subtask : managerRestored.subtasks.values()) {
+                Epic epic = managerRestored.epics.get(subtask.getEpicId());
+                epic.getSubTaskIdList().add(subtask.getId());
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка при чтении файла");
@@ -71,7 +69,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return managerRestored;
     }
 
-    protected void save() {
+    private void save() {
         Path path = file.toPath();
         if (!Files.exists(path)) {
             try {
