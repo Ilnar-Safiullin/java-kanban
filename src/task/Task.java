@@ -14,6 +14,13 @@ public class Task {
         this.name = name;
     }
 
+    public Task(Integer id, String name, String description) {
+        this.id = id;
+        this.description = description;
+        this.status = Status.NEW;
+        this.name = name;
+    }
+
     public Integer getId() {
         return this.id;
     }
@@ -71,4 +78,7 @@ public class Task {
         this.description = description;
     }
 
+    public TaskType getTaskType() {
+        return TaskType.TASK;
+    }
 }
