@@ -3,6 +3,9 @@ package task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
@@ -10,8 +13,7 @@ class EpicTest {
 
     @BeforeEach
     public void setUp() {
-        epic = new Epic("Чистка машины", "Помыть машину");
-        epic.setId(1);
+        epic = new Epic(1,"Чистка машины", "Помыть машину");
     }
 
     @Test
@@ -38,7 +40,7 @@ class EpicTest {
 
     @Test
     public void testAddSubtaskInEpic() {
-        Subtask subtask = new Subtask("Выехать", "Доехать до автомойки", epic.getId());
+        Subtask subtask = new Subtask("Выехать", "Доехать до автомойки", epic.getId(), Duration.ofMinutes(10), LocalDateTime.now().minusMinutes(15L));
         epic.getSubTaskIdList().add(subtask.getId());
         assertEquals(1, epic.getSubTaskIdList().size(), "Айди Сабтаски не добавить в Эпик");
     }

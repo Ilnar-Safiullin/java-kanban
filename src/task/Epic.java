@@ -1,17 +1,21 @@
 package task;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Epic extends Task {
     protected ArrayList<Integer> subTaskIdList;
+    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
         super(name, description);
+        this.startTime = LocalDateTime.of(3099, 1, 1, 0, 0);
         subTaskIdList = new ArrayList<>();
     }
 
     public Epic(Integer id, String name, String description) {
         super(id, name, description);
+        this.startTime = LocalDateTime.of(3099, 1, 1, 0, 0);
         subTaskIdList = new ArrayList<>();
     }
 
@@ -34,4 +38,7 @@ public class Epic extends Task {
                 '}';
     }
 
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
 }

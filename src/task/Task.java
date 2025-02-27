@@ -1,24 +1,45 @@
 package task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Task {
+public class Task implements Comparable<Task> {
     protected String name;
     protected String description;
     protected Status status;
     protected Integer id;
+    protected Duration duration = Duration.ofMinutes(0);
+    protected LocalDateTime startTime;
 
     public Task(String name, String description) {
+        this.name = name;
         this.description = description;
         this.status = Status.NEW;
-        this.name = name;
     }
 
     public Task(Integer id, String name, String description) {
         this.id = id;
+        this.name = name;
+        this.description = description;
+        this.status = Status.NEW;
+    }
+
+    public Task(String name, String description, Duration duration, LocalDateTime startTime) {
         this.description = description;
         this.status = Status.NEW;
         this.name = name;
+        this.duration = duration;
+        this.startTime = startTime;
+    }
+
+    public Task(Integer id, String name, String description, Duration duration, LocalDateTime startTime) {
+        this.id = id;
+        this.description = description;
+        this.status = Status.NEW;
+        this.name = name;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public Integer getId() {
@@ -57,6 +78,8 @@ public class Task {
                 ", description='" + description + '\'' +
                 ", status=" + status +
                 ", id=" + id +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
                 '}';
     }
 
@@ -80,5 +103,37 @@ public class Task {
 
     public TaskType getTaskType() {
         return TaskType.TASK;
+    }
+
+    public LocalDateTime getEndTime() {
+        if (startTime == null) {
+            return null;
+        }
+        return startTime.plusMinutes(duration.toMinutes());
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    @Override
+    public int compareTo(Task o) {
+        return this.startTime.compareTo(o.startTime);
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 }

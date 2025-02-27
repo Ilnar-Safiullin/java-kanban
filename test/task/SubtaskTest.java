@@ -3,6 +3,9 @@ package task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SubtaskTest {
@@ -10,20 +13,20 @@ public class SubtaskTest {
 
     @BeforeEach
     public void setUp() {
-        subtask = new Subtask("Доехать до автомойки", "Оплатить комплекс", 1);
+        subtask = new Subtask("Доехать до автомойки", "Оплатить комплекс", 1, Duration.ofMinutes(10), LocalDateTime.now().minusMinutes(15L));
         subtask.setId(2);
     }
 
     @Test
     public void equalSubtaskToEachOtherForIdAndDifferentDescriptions() {
-        Subtask subtask2 = new Subtask("Другое описание но Айди одинаковый", "тест", subtask.getId());
+        Subtask subtask2 = new Subtask("Другое описание но Айди одинаковый", "тест", subtask.getId(), Duration.ofMinutes(10), LocalDateTime.now().minusMinutes(15L));
         subtask2.setId(subtask.getId()); // Назначали subtask2 АЙди от subtask
         assertEquals(subtask2, subtask, "Субтаски с одинаковым Айди стали разными");
     }
 
     @Test
     public void notEqualSubtaskToDifferentIpAndEqualDescriptions() {
-        Subtask subtask2 = new Subtask("Чистка машины", "Помыть машину", 1);
+        Subtask subtask2 = new Subtask("Чистка машины", "Помыть машину", 1, Duration.ofMinutes(10), LocalDateTime.now().minusMinutes(15L));
         subtask2.setId(3);
         assertNotEquals(subtask, subtask2, "Субтаски с разными АЙди равны");
     }
