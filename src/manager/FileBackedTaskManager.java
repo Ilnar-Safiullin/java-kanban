@@ -63,7 +63,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         break;
                     case EPIC:
                         managerRestored.epics.put(task.getId(), (Epic) task);
-                        managerRestored.prioritizedTasks.add(task);
                         break;
                 }
             }

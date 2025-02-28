@@ -12,10 +12,10 @@ public class CSVTaskFormat {
         if (TaskType.SUBTASK == task.getTaskType()) {
             Subtask subtask = (Subtask) task;
             return subtask.getId() + "," + subtask.getTaskType() + "," + subtask.getName() + "," + subtask.getStatus() + ","
-                    + subtask.getDescription() + "," + subtask.getDuration() + "," + subtask.getStartTime() + "," + subtask.getEpicId();
+                    + subtask.getDescription() + "," + subtask.getDuration().toMinutes() + "," + subtask.getStartTime() + "," + subtask.getEpicId();
         }
         return (task.getId() + "," + task.getTaskType() + "," + task.getName() + "," + task.getStatus() + ","
-                + task.getDescription() + "," + task.getDuration() + "," + task.getStartTime());
+                + task.getDescription() + "," + task.getDuration().toMinutes() + "," + task.getStartTime());
     }
 
     public static Task taskFromString(String value) {
@@ -25,7 +25,7 @@ public class CSVTaskFormat {
         final String name = values[2];
         final Status status = Status.valueOf(values[3]);
         final String description = values[4];
-        final Duration duration = Duration.parse(values[5]);
+        final Duration duration = Duration.ofMinutes(Long.parseLong(values[5]));
         final LocalDateTime startTime = LocalDateTime.parse(values[6]);
         if (TaskType.SUBTASK == type) {
             final Integer epicId = Integer.parseInt(values[7]);
