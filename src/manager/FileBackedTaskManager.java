@@ -76,7 +76,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return managerRestored;
     }
 
-    private void save() {
+    public void save() {
         Path path = file.toPath();
         if (!Files.exists(path)) {
             try {
