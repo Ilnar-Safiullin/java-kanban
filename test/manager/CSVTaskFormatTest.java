@@ -23,21 +23,21 @@ public class CSVTaskFormatTest {
 
     @Test
     public void toStringTaskTest() {
-        assertEquals("1,TASK,Task,NEW,Test,10,0001-01-01T01:01", CSVTaskFormat.toString(task),
+        assertEquals("1,TASK,Task,NEW,Test,PT10M,0001-01-01T01:01", CSVTaskFormat.toString(task),
                 "toString() некорректно переводит Task в String");
-        assertEquals("2,EPIC,Epic,NEW,Test,0,null", CSVTaskFormat.toString(epic),
+        assertEquals("2,EPIC,Epic,NEW,Test,PT0S,null", CSVTaskFormat.toString(epic),
                 "toString() некорректно переводит Epic в String");
-        assertEquals("3,SUBTASK,Subtask,NEW,Test,10,0002-02-02T02:02,2", CSVTaskFormat.toString(subtask),
+        assertEquals("3,SUBTASK,Subtask,NEW,Test,PT10M,0002-02-02T02:02,2", CSVTaskFormat.toString(subtask),
                 "toString() некорректно переводит Subtask в String");
     }
 
     @Test
     public void taskFromStringTest() {
-        assertEquals(task, CSVTaskFormat.taskFromString("1,TASK,Task,NEW,Test,10,0001-01-01T01:01"),
+        assertEquals(task, CSVTaskFormat.taskFromString("1,TASK,Task,NEW,Test,PT10M,0001-01-01T01:01"),
                 "taskFromString() некорректно переводит String в Task");
-        assertEquals(epic, CSVTaskFormat.taskFromString("2,EPIC,Epic,NEW,Test,0,3099-01-01T00:00"),
+        assertEquals(epic, CSVTaskFormat.taskFromString("2,EPIC,Epic,NEW,Test,PT0M,0001-01-01T01:01"),
                 "taskFromString() некорректно переводит String в Epic");
-        assertEquals(subtask, CSVTaskFormat.taskFromString("3,SUBTASK,Subtask,NEW,Test,10,0002-02-02T02:02,2"),
+        assertEquals(subtask, CSVTaskFormat.taskFromString("3,SUBTASK,Subtask,NEW,Test,PT10M,0002-02-02T02:02,2"),
                 "taskFromString() некорректно переводит String в Subtask");
     }
 }

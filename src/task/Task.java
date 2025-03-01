@@ -104,6 +104,9 @@ public class Task implements Comparable<Task> {
     }
 
     public Duration getDuration() {
+        if(duration == null) {
+            return Duration.ofMinutes(0);
+        }
         return duration;
     }
 
