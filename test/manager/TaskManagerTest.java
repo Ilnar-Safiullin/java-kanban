@@ -1,6 +1,5 @@
 package manager;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Epic;
 import task.Status;
@@ -16,22 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public abstract class TaskManagerTest<T extends TaskManager> {
-    protected TaskManager taskManager;
+    protected T taskManager;
     protected Task task;
     protected Epic epic;
     protected Subtask subtask;
-
-    @BeforeEach
-    public void setUP() {
-        taskManager = new InMemoryTaskManager();
-        task = new Task("Test", "Test Task", Duration.ofMinutes(10), LocalDateTime.now());
-        taskManager.addInMapTask(task);
-        epic = new Epic("Test", "Test Epic");
-        taskManager.addInMapEpic(epic);
-        subtask = new Subtask("Test", "Test Subtask", epic.getId(), Duration.ofMinutes(10),
-                LocalDateTime.now().minusMinutes(15L));
-        taskManager.addInMapSubtask(subtask);
-    }
 
     @Test
     public void testAddTaskEpicSubtaskAndChekIdGenerate() {
@@ -176,7 +163,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Task task2 = new Task(task.getId(), "newTask", "new");
         Epic epic2 = new Epic(epic.getId(), "newEpic", "new");
         Subtask subtask2 = new Subtask(subtask.getId(), "new", "new", epic.getId(), Duration.ofMinutes(10),
-                LocalDateTime.now().minusMinutes(15L));
+                                                                             LocalDateTime.now().minusMinutes(15L));
         taskManager.updateTask(task2);
         taskManager.updateEpic(epic2);
         taskManager.updateSubtask(subtask2);

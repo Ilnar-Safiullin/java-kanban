@@ -1,5 +1,6 @@
 package manager;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.*;
 
@@ -12,16 +13,21 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     File file;
 
-    @Test
-    public void loadFromFileAndSaveTest() {
+    @BeforeEach
+    public void setUp() throws IOException {
         file = new File("./resources/task.csv");
         taskManager = new FileBackedTaskManager(file);
         task = new Task("Test", "Test Task", Duration.ofMinutes(10), LocalDateTime.now());
-        epic = new Epic(2, "Epic", "Test");
-        subtask = new Subtask(3, "Subtask", "Test", 2, Duration.ofMinutes(10), LocalDateTime.now().minusMinutes(30L));
         taskManager.addInMapTask(task);
+        epic = new Epic("Test", "Test Epic");
         taskManager.addInMapEpic(epic);
+        subtask = new Subtask("Test", "Test Subtask", epic.getId(), Duration.ofMinutes(10),
+                LocalDateTime.now().minusMinutes(15L));
         taskManager.addInMapSubtask(subtask);
+    }
+
+    @Test
+    public void loadFromFileAndSaveTest() {
         FileBackedTaskManager backedTaskManager = FileBackedTaskManager.loadFromFile(file);
         assertEquals(taskManager.getTasks(), backedTaskManager.getTasks(),
                 "Запись/Чтение файла не корректны с Тасками");

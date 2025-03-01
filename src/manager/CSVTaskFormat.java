@@ -11,11 +11,12 @@ public class CSVTaskFormat {
     public static String toString(Task task) {
         if (TaskType.SUBTASK == task.getTaskType()) {
             Subtask subtask = (Subtask) task;
-            return subtask.getId() + "," + subtask.getTaskType() + "," + subtask.getName() + "," + subtask.getStatus() + ","
-                    + subtask.getDescription() + "," + subtask.getDuration().toMinutes() + "," + subtask.getStartTime() + "," + subtask.getEpicId();
+            return subtask.getId() + "," + subtask.getTaskType() + "," + subtask.getName() + "," + subtask.getStatus() + "," + subtask.getDescription() + "," +
+                    (subtask.getDuration() != null ? subtask.getDuration().toMinutes() : 0) + "," + subtask.getStartTime() + "," + subtask.getEpicId(); // не стал переносить строки ато вообще не читаемо выходит
         }
         return (task.getId() + "," + task.getTaskType() + "," + task.getName() + "," + task.getStatus() + ","
-                + task.getDescription() + "," + task.getDuration().toMinutes() + "," + task.getStartTime());
+                + task.getDescription() + "," + (task.getDuration() != null ? task.getDuration().toMinutes() : 0) +
+                "," + task.getStartTime());
     }
 
     public static Task taskFromString(String value) {
