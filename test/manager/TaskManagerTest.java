@@ -9,25 +9,27 @@ import task.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public abstract class TaskManagerTest<T extends TaskManager> {
-    protected T taskManager;
-    private Task task;
-    private Epic epic;
-    private Subtask subtask;
+    protected TaskManager taskManager;
+    protected Task task;
+    protected Epic epic;
+    protected Subtask subtask;
 
     @BeforeEach
     public void setUP() {
-        taskManager = (T) new InMemoryTaskManager();
+        taskManager = new InMemoryTaskManager();
         task = new Task("Test", "Test Task", Duration.ofMinutes(10), LocalDateTime.now());
         taskManager.addInMapTask(task);
         epic = new Epic("Test", "Test Epic");
         taskManager.addInMapEpic(epic);
-        subtask = new Subtask("Test", "Test Subtask", epic.getId(), Duration.ofMinutes(10), LocalDateTime.now().minusMinutes(15L));
+        subtask = new Subtask("Test", "Test Subtask", epic.getId(), Duration.ofMinutes(10),
+                LocalDateTime.now().minusMinutes(15L));
         taskManager.addInMapSubtask(subtask);
     }
 
@@ -132,7 +134,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void notSubtaskMakeYourEpic() {
-        Subtask subtask2 = new Subtask("Тест", "Тест", subtask.getId(), Duration.ofMinutes(10), LocalDateTime.now().minusMinutes(15L));
+        Subtask subtask2 = new Subtask("Тест", "Тест", subtask.getId(), Duration.ofMinutes(10),
+                LocalDateTime.now().minusMinutes(15L));
         taskManager.addInMapSubtask(subtask2);
         assertEquals(1, taskManager.getSubtasks().size(), "Субтаск стал для Субтаска Эпиком");
     }
@@ -147,7 +150,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.updateEpic(epic);
         assertEquals(epic.getStatus(), Status.DONE, "updateStatusForEpic работает не корректно");
         assertEquals(subtask.getStatus(), Status.DONE, "updateEpic работает не корректно");
-        Subtask subtask2 = new Subtask("Тест 2", "Тест 2", epic.getId(), Duration.ofMinutes(10), LocalDateTime.now().minusMinutes(40L));
+        Subtask subtask2 = new Subtask("Тест 2", "Тест 2", epic.getId(), Duration.ofMinutes(10),
+                LocalDateTime.now().minusMinutes(40L));
         taskManager.addInMapSubtask(subtask2);
         assertEquals(epic.getStatus(), Status.IN_PROGRESS,
                 "updateStatusForEpic при добавление новой Субатаски работает не корректно");
@@ -164,7 +168,29 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     public void isTaskIntersectionTest() {
         Task task2 = new Task("Test", "Test Task", Duration.ofMinutes(10), LocalDateTime.now());
         taskManager.addInMapTask(task2);
-        assertEquals(taskManager.getTasks().size(), 1, "Добавляет задачи с пересечением по времени");
+        assertEquals(taskManager.getPrioritizedTasks().size(), 2, "Добавляет задачи с пересечением по времени");
+    }
+
+    @Test
+    public void updateTest() {
+        Task task2 = new Task(task.getId(), "newTask", "new");
+        Epic epic2 = new Epic(epic.getId(), "newEpic", "new");
+        Subtask subtask2 = new Subtask(subtask.getId(), "new", "new", epic.getId(), Duration.ofMinutes(10),
+                LocalDateTime.now().minusMinutes(15L));
+        taskManager.updateTask(task2);
+        taskManager.updateEpic(epic2);
+        taskManager.updateSubtask(subtask2);
+        assertEquals(task.getName(), task2.getName(), "не обновляет Таски");
+        assertEquals(epic.getName(), epic2.getName(), "не обновляет Эпики");
+        assertEquals(subtask.getName(), subtask2.getName(), "не обновляет Субтаски");
+    }
+
+    @Test
+    public void prioritizedTasksTest() {
+        Optional<Subtask> optionalSubtask = Optional.ofNullable(subtask);
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
+        assertEquals(optionalSubtask, taskManager.getPrioritizedTasks().stream().findFirst(),
+                "prioritizedTasks не корректно сортирует задачи по времени");
     }
 
 }

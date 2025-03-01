@@ -18,7 +18,6 @@ public class InMemoryTaskManager implements TaskManager {
     protected Set<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
     protected HistoryManager historyManager = Managers.getDefaultHistory();
 
-
     @Override
     public void addInMapTask(Task task) {
         task.setId(idCounter++);
@@ -69,23 +68,32 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskForId(int id) {
-        Task task = tasks.get(id);
-        historyManager.add(task);
-        return task;
+        return tasks.entrySet().stream()
+                .filter(entry -> entry.getKey().equals(id))
+                .map(Map.Entry::getValue)
+                .peek(task -> historyManager.add(task))
+                .findAny()
+                .orElse(null);
     }
 
     @Override
     public Epic getEpicForId(int id) {
-        Epic epic = epics.get(id);
-        historyManager.add(epic);
-        return epic;
+        return epics.entrySet().stream()
+                .filter(entry -> entry.getKey().equals(id))
+                .map(Map.Entry::getValue)
+                .peek(epic -> historyManager.add(epic))
+                .findAny()
+                .orElse(null);
     }
 
     @Override
     public Subtask getSubtasksForId(int id) {
-        Subtask subtask = subtasks.get(id);
-        historyManager.add(subtask);
-        return subtask;
+        return subtasks.entrySet().stream()
+                .filter(entry -> entry.getKey() == id)
+                .map(Map.Entry::getValue)
+                .peek(subtask -> historyManager.add(subtask))
+                .findAny()
+                .orElse(null);
     }
 
     private void updateStatusForEpic(Epic epic) {
@@ -196,17 +204,19 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task task) {
         if (tasks.containsKey(task.getId())) {
-            task.setName(task.getName());
-            task.setDescription(task.getDescription());
-            task.setStatus(task.getStatus());
+            Task newTask = tasks.get(task.getId());
+            newTask.setName(task.getName());
+            newTask.setDescription(task.getDescription());
+            newTask.setStatus(task.getStatus());
         }
     }
 
     @Override
     public void updateEpic(Epic epic) {
         if (epics.containsKey(epic.getId())) {
-            epic.setName(epic.getName());
-            epic.setDescription(epic.getDescription());
+            Task newEpic = epics.get(epic.getId());
+            newEpic.setName(epic.getName());
+            newEpic.setDescription(epic.getDescription());
             updateStatusForEpic(epic);
             updateTimeForEpic(epic);
         }
@@ -215,9 +225,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(Subtask subtask) {
         if (subtasks.containsKey(subtask.getId())) {
-            subtask.setName(subtask.getName());
-            subtask.setDescription(subtask.getDescription());
-            subtask.setStatus(subtask.getStatus());
+            Subtask newSubtask = subtasks.get(subtask.getId());
+            newSubtask.setName(subtask.getName());
+            newSubtask.setDescription(subtask.getDescription());
+            newSubtask.setStatus(subtask.getStatus());
             updateStatusForEpic(epics.get(subtask.getEpicId()));
             updateTimeForEpic(epics.get(subtask.getEpicId()));
         }
@@ -228,7 +239,8 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    protected Set<Task> getPrioritizedTasks() {
+    @Override
+    public Set<Task> getPrioritizedTasks() {
         return prioritizedTasks;
     }
 
@@ -236,13 +248,11 @@ public class InMemoryTaskManager implements TaskManager {
         if (getPrioritizedTasks().isEmpty()) {
             return true;
         }
-        for (Task newTask : getPrioritizedTasks()) {
-            if (task.getStartTime().isBefore(newTask.getEndTime()) &&
-                    task.getEndTime().isAfter(newTask.getStartTime())) {
-                return false;
-            }
-        }
-        return true;
+        return getPrioritizedTasks().stream()
+                .filter(newTask -> task.getStartTime().isBefore(newTask.getEndTime()) &&
+                        task.getEndTime().isAfter(newTask.getStartTime()))
+                .findAny()
+                .isEmpty();
     }
 
     private void updateTimeForEpic(Epic epic) {
@@ -266,7 +276,7 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             epic.setStartTime(null);
             epic.setDuration(null);
-            epic.setDuration(null);
+            epic.setEndTime(null);
         }
     }
 

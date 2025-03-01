@@ -44,8 +44,4 @@ public class SubtaskTest {
         epic.setId(1);
         assertEquals(epic.getId(), subtask.getEpicId(), "Субтаск не получил значение ЕпикАйди от Айди Епика");
     }
-
-    // Тест что Субтаск не может сам себе эпиком стать перенес в InMemoryTaskManagerTest, так как субтаск крепится в к Эпику
-    // только в момент добавления в мапу.
-
 }

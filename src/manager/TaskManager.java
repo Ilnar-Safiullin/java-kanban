@@ -1,6 +1,7 @@
 package manager;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import task.Epic;
 import task.Task;
@@ -47,5 +48,7 @@ public interface TaskManager {
     void updateSubtask(Subtask subtask);
 
     ArrayList<Task> getHistory();
+
+    Set<Task> getPrioritizedTasks();
 
 }
