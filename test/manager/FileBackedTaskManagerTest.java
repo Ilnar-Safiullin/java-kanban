@@ -42,8 +42,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
     @Test
     public void testException() {
         assertThrows(ManagerSaveException.class, () -> {
-            FileBackedTaskManager manager = new FileBackedTaskManager(new File("/invalid/path/task.csv"));
-            manager.save();
-        }, "should result in an error");
+            FileBackedTaskManager manager = FileBackedTaskManager.loadFromFile(new File("/invalid/path/task.csv"));
+        }, "ошибка");
     }
 }

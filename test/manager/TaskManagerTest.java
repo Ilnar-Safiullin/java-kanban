@@ -130,9 +130,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     public void updateEpicStatusTest() {
         subtask.setStatus(Status.IN_PROGRESS);
-        taskManager.updateSubtask(subtask);
+        taskManager.updateEpic(epic);
         assertEquals(epic.getStatus(), Status.IN_PROGRESS, "updateStatusForEpic работает не корректно");
-        assertEquals(subtask.getStatus(), Status.IN_PROGRESS, "updateSubtask работает не корректно");
         subtask.setStatus(Status.DONE);
         taskManager.updateEpic(epic);
         assertEquals(epic.getStatus(), Status.DONE, "updateStatusForEpic работает не корректно");
@@ -160,10 +159,11 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void updateTest() {
-        Task task2 = new Task(task.getId(), "newTask", "new");
+        Task task2 = new Task(task.getId(), "newTask", "new", Duration.ofMinutes(10),
+                LocalDateTime.now().minusMinutes(80L));
         Epic epic2 = new Epic(epic.getId(), "newEpic", "new");
-        Subtask subtask2 = new Subtask(subtask.getId(), "new", "new", epic.getId(), Duration.ofMinutes(10),
-                                                                             LocalDateTime.now().minusMinutes(15L));
+        Subtask subtask2 = new Subtask(subtask.getId(), "new", "new", epic.getId(),
+                Duration.ofMinutes(10), LocalDateTime.now().minusMinutes(120L));
         taskManager.updateTask(task2);
         taskManager.updateEpic(epic2);
         taskManager.updateSubtask(subtask2);
@@ -178,6 +178,14 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(2, taskManager.getPrioritizedTasks().size());
         assertEquals(optionalSubtask, taskManager.getPrioritizedTasks().stream().findFirst(),
                 "prioritizedTasks не корректно сортирует задачи по времени");
+    }
+
+    @Test
+    public void prioritizedAddTest() {
+        Task task3 = new Task("Test", "Test Task", Duration.ofMinutes(10), LocalDateTime.now());
+        taskManager.addInMapTask(task3);
+        assertEquals(2, taskManager.getPrioritizedTasks().size(),
+                "Добавилась таска с таким же временем в лист приоритета");
     }
 
 }

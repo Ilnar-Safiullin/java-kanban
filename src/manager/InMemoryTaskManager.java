@@ -68,32 +68,23 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskForId(int id) {
-        return tasks.entrySet().stream()
-                .filter(entry -> entry.getKey().equals(id))
-                .map(Map.Entry::getValue)
-                .peek(task -> historyManager.add(task))
-                .findAny()
-                .orElse(null);
+        Task task = tasks.get(id);
+        historyManager.add(task);
+        return task;
     }
 
     @Override
     public Epic getEpicForId(int id) {
-        return epics.entrySet().stream()
-                .filter(entry -> entry.getKey().equals(id))
-                .map(Map.Entry::getValue)
-                .peek(epic -> historyManager.add(epic))
-                .findAny()
-                .orElse(null);
+        Epic epic = epics.get(id);
+        historyManager.add(epic);
+        return epic;
     }
 
     @Override
     public Subtask getSubtasksForId(int id) {
-        return subtasks.entrySet().stream()
-                .filter(entry -> entry.getKey() == id)
-                .map(Map.Entry::getValue)
-                .peek(subtask -> historyManager.add(subtask))
-                .findAny()
-                .orElse(null);
+        Subtask subtask = subtasks.get(id);
+        historyManager.add(subtask);
+        return subtask;
     }
 
     private void updateStatusForEpic(Epic epic) {
@@ -136,6 +127,9 @@ public class InMemoryTaskManager implements TaskManager {
         Set<Integer> keys = tasks.keySet();
         for (Integer key : keys) {
             historyManager.remove(key);
+            if (prioritizedTasks.contains(getTaskForId(key))) {
+                prioritizedTasks.remove(getTaskForId(key));
+            }
         }
         tasks.clear();
     }
@@ -148,6 +142,9 @@ public class InMemoryTaskManager implements TaskManager {
         }
         Set<Integer> keysSubtask = subtasks.keySet();
         for (Integer key : keysSubtask) {
+            if (prioritizedTasks.contains(getSubtasksForId(key))) {
+                prioritizedTasks.remove(getSubtasksForId(key));
+            }
             historyManager.remove(key);
         }
         epics.clear();
@@ -159,6 +156,9 @@ public class InMemoryTaskManager implements TaskManager {
         Set<Integer> keys = subtasks.keySet();
         for (Integer key : keys) {
             historyManager.remove(key);
+            if (prioritizedTasks.contains(getSubtasksForId(key))) {
+                prioritizedTasks.remove(getSubtasksForId(key));
+            }
         }
         for (Epic epic : epics.values()) {
             epic.getSubTaskIdList().clear();
@@ -171,6 +171,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeTaskForId(int id) {
+        if (prioritizedTasks.contains(getTaskForId(id))) {
+            prioritizedTasks.remove(getTaskForId(id));
+        }
         tasks.remove(id);
         historyManager.remove(id);
     }
@@ -180,6 +183,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (epics.containsKey(id)) {
             Epic epic = epics.get(id);
             for (Integer subtaskId : epic.getSubTaskIdList()) {
+                if (prioritizedTasks.contains(getSubtasksForId(subtaskId))) {
+                    prioritizedTasks.remove(getSubtasksForId(subtaskId));
+                }
                 subtasks.remove(subtaskId);
                 historyManager.remove(subtaskId);
             }
@@ -190,6 +196,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeSubtaskForId(int idSub) {
+        if (prioritizedTasks.contains(getSubtasksForId(idSub))) { // решил оставить эту проверку if, ато если подать номер айди субтаски которой нет в мапе то выходит ошибка
+            prioritizedTasks.remove(getSubtasksForId(idSub));
+        }
         if (subtasks.containsKey(idSub)) {
             Subtask sub = getSubtasksForId(idSub);
             Epic epi = getEpicForId(sub.getEpicId());
@@ -203,16 +212,21 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
+        if (task.getStartTime() == null || !isTaskIntersection(task)) {
+            return;
+        }
         if (tasks.containsKey(task.getId())) {
             Task newTask = tasks.get(task.getId());
             newTask.setName(task.getName());
             newTask.setDescription(task.getDescription());
             newTask.setStatus(task.getStatus());
+            newTask.setDuration(task.getDuration());
+            newTask.setStartTime(task.getStartTime());
         }
     }
 
     @Override
-    public void updateEpic(Epic epic) {
+    public void updateEpic(Epic epic) { //Эпика нет в трисете, так что здесь проверку не делал
         if (epics.containsKey(epic.getId())) {
             Task newEpic = epics.get(epic.getId());
             newEpic.setName(epic.getName());
@@ -224,11 +238,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubtask(Subtask subtask) {
+        if (subtask.getStartTime() == null || !isTaskIntersection(subtask)) {
+            return;
+        }
         if (subtasks.containsKey(subtask.getId())) {
             Subtask newSubtask = subtasks.get(subtask.getId());
             newSubtask.setName(subtask.getName());
             newSubtask.setDescription(subtask.getDescription());
             newSubtask.setStatus(subtask.getStatus());
+            newSubtask.setDuration(subtask.getDuration());
+            newSubtask.setStartTime(subtask.getStartTime());
             updateStatusForEpic(epics.get(subtask.getEpicId()));
             updateTimeForEpic(epics.get(subtask.getEpicId()));
         }
@@ -240,8 +259,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Set<Task> getPrioritizedTasks() {
-        return prioritizedTasks;
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(prioritizedTasks);
     }
 
     private boolean isTaskIntersection(Task task) {

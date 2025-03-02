@@ -29,12 +29,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         System.out.println(managerRestored.getTasks());
         System.out.println("===============");
         /*
-        Сергей Привет, Спасибо большое за рекомендации. С тестами, я пытался сделать как у тебя в примере с protected T taskManager
-        в тестовом Абстрактном классе, но не смог. И в чате у людей и у курратора спрашивал, но никто ничего не сказал. Не смог в итоге запустить тесты в абстрактном классе.
-        В итоге собрал тесты в таком виде. Я пытался полю <protected T TaskManager> в методе setUp() сделать: taskManager = (T) new InMemoryTaskManager();
-        Но тесты не запускались и писало ошибку nullpointexception. Он какбудто вообще не мог запустить менеджер. Ужасный абстрактный класс (
-        Спасибо за проверку и хорошего тебе дня!
-        upd: Каким то образом я смог вроде собрать тестовый класс. Но я не понимаю как это работает, просто методом тыка получилось и тесты зеленные. Этот абстрактный класс меня пугает Сергей
+        Привет Спасибо за рекомендации! Вроде все исправил. В методе обновления Эпик я не трогал, так как Эпика нет в листе приоритетов
+        а метод обновления времени Эпика также включен внутри.
          */
     }
 
@@ -76,7 +72,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return managerRestored;
     }
 
-    public void save() {
+    private void save() {
         Path path = file.toPath();
         if (!Files.exists(path)) {
             try {
