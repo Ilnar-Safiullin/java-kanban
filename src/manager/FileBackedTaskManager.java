@@ -29,8 +29,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         System.out.println(managerRestored.getTasks());
         System.out.println("===============");
         /*
-        Привет Спасибо за рекомендации! Вроде все исправил. В методе обновления Эпик я не трогал, так как Эпика нет в листе приоритетов
-        а метод обновления времени Эпика также включен внутри.
+        Спасибо, вроде теперь точно все) Хорошего тебе дня)
          */
     }
 

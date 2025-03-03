@@ -8,6 +8,7 @@ import task.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -174,18 +175,21 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void prioritizedTasksTest() {
-        Optional<Subtask> optionalSubtask = Optional.ofNullable(subtask);
-        assertEquals(2, taskManager.getPrioritizedTasks().size());
-        assertEquals(optionalSubtask, taskManager.getPrioritizedTasks().stream().findFirst(),
-                "prioritizedTasks не корректно сортирует задачи по времени");
+        Task task3 = new Task("Task 3", "Third Task", Duration.ofMinutes(10),
+                LocalDateTime.of(2023, 10, 1, 9, 0));
+        taskManager.addInMapTask(task3);
+        List<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
+        assertEquals(3, prioritizedTasks.size(), "Количество задач не соответствует ожидаемому");
+        assertEquals(task3, prioritizedTasks.get(0), "Первая задача должна быть task3");
+        assertEquals(subtask, prioritizedTasks.get(1), "Вторая задача должна быть subtask");
+        assertEquals(task, prioritizedTasks.get(2), "Третья задача должна быть task");
     }
 
     @Test
-    public void prioritizedAddTest() {
-        Task task3 = new Task("Test", "Test Task", Duration.ofMinutes(10), LocalDateTime.now());
-        taskManager.addInMapTask(task3);
-        assertEquals(2, taskManager.getPrioritizedTasks().size(),
-                "Добавилась таска с таким же временем в лист приоритета");
+    public void prioritizedAddIntersectionTest() {
+        Task task2 = new Task("Task 2", "Second Task", Duration.ofMinutes(10), LocalDateTime.now()); // Пересекается с task
+        taskManager.addInMapTask(task2);
+        List<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
+        assertEquals(2, prioritizedTasks.size(), "Должна остаться только 2 задачи из-за пересечения");
     }
-
 }
