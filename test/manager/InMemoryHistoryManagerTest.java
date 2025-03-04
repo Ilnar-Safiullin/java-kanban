@@ -6,6 +6,8 @@ import task.Epic;
 import task.Subtask;
 import task.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,7 +23,7 @@ public class InMemoryHistoryManagerTest {
         historyManager = new InMemoryHistoryManager();
         task = new Task("Тест", "Тест");
         epic = new Epic("Тест", "Тест");
-        subtask = new Subtask("Тест", "Тест", 5);
+        subtask = new Subtask("Тест", "Тест", 5, Duration.ofMinutes(10), LocalDateTime.now().minusMinutes(15L));
         task.setId(0);
         epic.setId(1);
         subtask.setId(2);

@@ -5,6 +5,8 @@ import task.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private File file;
@@ -15,22 +17,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static void main(String[] args) {
         File file = new File("./resources/task.csv");
-        FileBackedTaskManager managerRestored = FileBackedTaskManager.loadFromFile(file);
+        FileBackedTaskManager managerRestored = new FileBackedTaskManager(file);
         System.out.println(managerRestored.getTasks());
-        System.out.println(managerRestored.getEpics());
-        System.out.println(managerRestored.getSubtasks());
+
+        Epic epic1 = new Epic("Test 9", "Test 9");
+        managerRestored.addInMapEpic(epic1);
+        Subtask subtask1 = new Subtask("Test 9", "Test 9", epic1.getId(), Duration.ofMinutes(10), LocalDateTime.now());
+        Subtask subtask2 = new Subtask("Test 9", "Test 9", epic1.getId(), Duration.ofMinutes(10), LocalDateTime.now().minusMinutes(15L));
+        managerRestored.addInMapSubtask(subtask1);
+        managerRestored.addInMapSubtask(subtask2);
+        System.out.println(managerRestored.getTasks());
         System.out.println("===============");
-        Task task8 = new Task("Test 9", "Test 9");
-        managerRestored.addInMapTask(task8);
-        System.out.println(managerRestored.getTasks());
-        System.out.println("===============");
-        managerRestored.removeTaskForId(1);
-        System.out.println(managerRestored.getTasks());
         /*
-        Спасибо все исправил) Хороших Выходных)
+        Спасибо, вроде теперь точно все) Хорошего тебе дня)
          */
-
-
     }
 
     public static FileBackedTaskManager loadFromFile(File file) {
@@ -50,9 +50,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 switch (task.getTaskType()) {
                     case TASK:
                         managerRestored.tasks.put(task.getId(), task);
+                        managerRestored.prioritizedTasks.add(task);
                         break;
                     case SUBTASK:
                         managerRestored.subtasks.put(task.getId(), (Subtask) task);
+                        managerRestored.prioritizedTasks.add(task);
                         break;
                     case EPIC:
                         managerRestored.epics.put(task.getId(), (Epic) task);
