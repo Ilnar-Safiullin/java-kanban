@@ -26,7 +26,7 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
         String[] uriParts = requestURI.split("/");
 
 
-        try {
+        try (httpExchange) {
             switch (method) {
                 case "GET":
                     Gson gson = new GsonBuilder()
@@ -93,5 +93,6 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
         } catch (Exception e) {
             sendNotFound(httpExchange, "Произошла ошибка: " + e.getMessage());
         }
+        httpExchange.close();
     }
 }
