@@ -7,10 +7,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 
-
 public class HttpTaskServer {
     private static final int PORT = 8080;
-
 
 
     public static void main(String[] args) throws IOException {
@@ -28,25 +26,17 @@ public class HttpTaskServer {
 
 
         /*
+        Сергей Привет. Я отсылаю чтобы спросить. Подскажи пожалуйста что не так с TaskHandler. Я запустил в мейне для теста
+        через инсомнию через "POST" добавил таску путем <http://localhost:8080/tasks/Task1,Test> и она добавилась. Но когда
+        через GET по айди пытаюсь получить эту таску или все таски, то выходит ошибка. Так как это чтото типо сервера,
+        я не могу через дебаг посмотреть что не нравится ему. Притом если вобью номер айди задачи которой не существует,
+        то он выдает правильно "Задача Task с таким номером id не найдена". Добавленную же задачу он находит по айди,
+        но выдать почему то не может. И куратор и в чате люди тоже молчат, весь день пытаюсь это решить, даже нейросеть
+        говорит все верно, до последнего не хотел тебя дергать (
+        Извини если отвлекаю тебя Сергей.
 
-
-        File file = new File("./resources/task.csv");
-        FileBackedTaskManager managerRestored = new FileBackedTaskManager(file);
-        System.out.println(managerRestored.getTasks());
-
-        Epic epic1 = new Epic("Test 9", "Test 9");
-        managerRestored.addInMapEpic(epic1);
-        Subtask subtask1 = new Subtask("Test 9", "Test 9", epic1.getId(), Duration.ofMinutes(10), LocalDateTime.now());
-        Subtask subtask2 = new Subtask("Test 9", "Test 9", epic1.getId(), Duration.ofMinutes(10), LocalDateTime.now().minusMinutes(15L));
-        managerRestored.addInMapSubtask(subtask1);
-        managerRestored.addInMapSubtask(subtask2);
-        System.out.println(managerRestored.getTasks());
-        System.out.println("===============");
          */
     }
-
-
-
 
 
 }
