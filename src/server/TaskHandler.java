@@ -1,7 +1,5 @@
 package server;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import manager.Managers;
@@ -9,6 +7,8 @@ import manager.TaskManager;
 import task.Task;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,77 +22,84 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
 
     public void handle(HttpExchange httpExchange) throws IOException {
         String method = httpExchange.getRequestMethod();
-        String requestURI = httpExchange.getRequestURI().toString();
-        String[] uriParts = requestURI.split("/");
+        InputStream requestBody = httpExchange.getRequestBody();
+        String requestBodyString = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
 
-
-        try (httpExchange) {
-            switch (method) {
-                case "GET":
-                    Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                            .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
-                            .create();
-                    if (uriParts.length == 3) {
-                        int id = Integer.parseInt(uriParts[2]);
-                        Task task = taskManager.getTaskForId(id);
-                        if (task != null) {
-                            String jsonResponse = gson.toJson(task);
-                            sendText(httpExchange, jsonResponse);
-                        } else {
-                            String errorMessage = "Задача Task с таким номером id не найдена";
-                            sendNotFound(httpExchange, errorMessage);
-                        }
-                    } else {
-                        ArrayList<Task> tasks = taskManager.getTasks();
-                        String jsonResponse = gson.toJson(tasks);
-                        sendText(httpExchange, jsonResponse);
-                    }
-                    break;
-                case "DELETE":
-                    if (uriParts.length == 3) {
-                        int id = Integer.parseInt(uriParts[2]);
-                        Task task = taskManager.getTaskForId(id);
-                        if (task != null) {
-                            taskManager.removeTaskForId(id);
-                            String message = "Задача Task удалена";
-                            sendText(httpExchange, message);
-                        } else {
-                            String errorMessage = "Задача Task с таким номером id не найдена";
-                            sendNotFound(httpExchange, errorMessage);
-                        }
-                    } else {
-                        taskManager.removeAllTask();
-                        String message = "Все задачи Task удалены";
-                        sendText(httpExchange, message);
-                    }
-                    break;
-                case "POST":
-                    String[] taskInfo = uriParts[2].split(",");
-                    String message;
-                    if (taskInfo.length == 5) {
-                        Task task = new Task(Integer.parseInt(taskInfo[0]), taskInfo[1], taskInfo[2],
-                                Duration.parse(taskInfo[3]), LocalDateTime.parse(taskInfo[4]));
-                        taskManager.updateTask(task);
-                        message = "Задача Task обновлена";
-                    } else {
-                        Task task = new Task(taskInfo[0], taskInfo[1]);
-                        taskManager.addInMapTask(task);
-                        message = "Задача Task добавлена";
-                        System.out.println("Dobavleno");
-                        System.out.println(taskManager.getTasks());
-                    }
-                    sendText(httpExchange, message);
-                    break;
-                default:
-                    sendNotFound(httpExchange, "Метод не поддерживается");
-                    break;
-            }
-        } catch (NumberFormatException e) {
-            sendNotFound(httpExchange, "Неверный формат ID");
-        } catch (Exception e) {
-            sendNotFound(httpExchange, "Произошла ошибка: " + e.getMessage());
+        switch (method) {
+            case "GET":
+                getTask(httpExchange, requestBodyString);
+                break;
+            case "DELETE":
+                deleteTask(httpExchange, requestBodyString);
+                break;
+            case "POST":
+                postTask(httpExchange, requestBodyString);
+                break;
+            default:
+                sendNotFound(httpExchange, "Метод не поддерживается", 404);
+                break;
         }
-        httpExchange.close();
+    }
+
+    public void getTask(HttpExchange httpExchange, String requestBodyString) throws IOException {
+        try {
+            if (!requestBodyString.isEmpty()) {
+                int id = Integer.parseInt(requestBodyString);
+                Task task = taskManager.getTaskForId(id);
+                String jsonResponse = gson.toJson(task);
+                if (task != null) {
+                    sendText(httpExchange, jsonResponse, 200);
+                } else {
+                    sendNotFound(httpExchange, "Задачи с таким номером id нет", 404);
+                }
+            } else {
+                ArrayList<Task> tasks = taskManager.getTasks();
+                String jsonResponse = gson.toJson(tasks);
+                sendText(httpExchange, jsonResponse, 200);
+            }
+        } catch (Exception exp) {
+            sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
+        }
+    }
+
+    public void deleteTask(HttpExchange httpExchange, String requestBodyString) throws IOException {
+        try {
+            if (!requestBodyString.isEmpty()) {
+                int id = Integer.parseInt(requestBodyString);
+                Task task = taskManager.getTaskForId(id);
+                if (task != null) {
+                    taskManager.removeTaskForId(id);
+                    sendText(httpExchange, "Задача Task удалена", 200);
+                } else {
+                    sendNotFound(httpExchange, "Задача Task с таким номером id не найдена", 404);
+                }
+            } else {
+                taskManager.removeAllTask();
+                String message = "Все задачи Task удалены";
+                sendText(httpExchange, message, 200);
+            }
+        } catch (Exception exp) {
+            sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
+        }
+    }
+
+    public void postTask(HttpExchange httpExchange, String requestBodyString) throws IOException {
+        try {
+            String[] taskData = requestBodyString.split(",");
+            String message;
+            if (taskData.length == 5) {
+                Task task = new Task(Integer.parseInt(taskData[0]), taskData[1], taskData[2],
+                        Duration.parse(taskData[3]), LocalDateTime.parse(taskData[4]));
+                taskManager.updateTask(task);
+                message = "Задача Task обновлена";
+            } else {
+                Task task = new Task(taskData[0], taskData[1]);
+                taskManager.addInMapTask(task);
+                message = "Задача Task добавлена";
+            }
+            sendText(httpExchange, message, 201);
+        } catch (Exception exp) {
+            sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
+        }
     }
 }

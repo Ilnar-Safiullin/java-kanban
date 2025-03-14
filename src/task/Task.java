@@ -63,18 +63,6 @@ public class Task implements Comparable<Task> {
     }
 
     @Override
-    public String toString() {
-        return "Class.Task{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", status=" + status +
-                ", id=" + id +
-                ", duration=" + duration +
-                ", startTime=" + startTime +
-                '}';
-    }
-
-    @Override
     public boolean equals(Object object) {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
@@ -129,5 +117,17 @@ public class Task implements Comparable<Task> {
 
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", id=" + id +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
+                '}';
     }
 }
