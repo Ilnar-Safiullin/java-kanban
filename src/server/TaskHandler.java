@@ -89,7 +89,7 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
             String message;
             if (taskData.length == 5) {
                 Task task = new Task(Integer.parseInt(taskData[0]), taskData[1], taskData[2],
-                        Duration.parse(taskData[3]), LocalDateTime.parse(taskData[4]));
+                                    Duration.parse(taskData[3]), LocalDateTime.parse(taskData[4]));
                 taskManager.updateTask(task);
                 message = "Задача Task обновлена";
             } else {

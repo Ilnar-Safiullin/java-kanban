@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 
 public class EpicHandler extends BaseHttpHandler implements HttpHandler {
     TaskManager taskManager;
@@ -41,7 +42,9 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
 
     public void getEpic(HttpExchange httpExchange, String requestBodyString) throws IOException {
         try {
-            if (!requestBodyString.isEmpty()) {
+            String requestPath = httpExchange.getRequestURI().getPath();
+            String[] pathParts = requestPath.split("/");
+            if (pathParts.length == 2 && !requestBodyString.isEmpty()) {
                 int id = Integer.parseInt(requestBodyString);
                 Epic epic = taskManager.getEpicForId(id);
                 String jsonResponse = gson.toJson(epic);
@@ -50,10 +53,20 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
                 } else {
                     sendNotFound(httpExchange, "Задачи с таким номером id нет", 404);
                 }
-            } else {
+            } else if (pathParts.length == 2 && requestBodyString.isEmpty()) { //получить все субтаски у Эпика
                 ArrayList<Epic> epics = taskManager.getEpics();
                 String jsonResponse = gson.toJson(epics);
                 sendText(httpExchange, jsonResponse, 200);
+            } else if (pathParts.length == 3 && pathParts[2].equals("subtasks")) {
+                int id = Integer.parseInt(requestBodyString);
+                Epic epic = taskManager.getEpicForId(id);
+                if (epic != null) {
+                    List<Integer> subtasksId = epic.getSubTaskIdList();
+                    String jsonResponse = gson.toJson(subtasksId);
+                    sendText(httpExchange, jsonResponse, 200);
+                } else {
+                    sendNotFound(httpExchange, "Задачи с таким номером id нет", 404);
+                }
             }
         } catch (Exception exp) {
             sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);

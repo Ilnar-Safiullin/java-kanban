@@ -27,10 +27,6 @@ public class BaseHttpHandler {
         h.close();
     }
 
-    String readText(HttpExchange h) throws IOException {
-        return new String(h.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-    }
-
     protected Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
