@@ -9,8 +9,6 @@ import task.Task;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class TaskHandler extends BaseHttpHandler implements HttpHandler {
@@ -22,18 +20,18 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
 
     public void handle(HttpExchange httpExchange) throws IOException {
         String method = httpExchange.getRequestMethod();
-        InputStream requestBody = httpExchange.getRequestBody();
-        String requestBodyString = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
+        String requestPath = httpExchange.getRequestURI().getPath();
+        String[] pathParts = requestPath.split("/");
 
         switch (method) {
             case "GET":
-                getTask(httpExchange, requestBodyString);
+                getTask(httpExchange, pathParts);
                 break;
             case "DELETE":
-                deleteTask(httpExchange, requestBodyString);
+                deleteTask(httpExchange, pathParts);
                 break;
             case "POST":
-                postTask(httpExchange, requestBodyString);
+                postTask(httpExchange);
                 break;
             default:
                 sendNotFound(httpExchange, "Метод не поддерживается", 404);
@@ -41,63 +39,64 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
         }
     }
 
-    public void getTask(HttpExchange httpExchange, String requestBodyString) throws IOException {
+    public void getTask(HttpExchange httpExchange, String[] pathParts) throws IOException {
         try {
-            if (!requestBodyString.isEmpty()) {
-                int id = Integer.parseInt(requestBodyString);
-                Task task = taskManager.getTaskForId(id);
+            if (pathParts.length == 3 && pathParts[1].equals("tasks")) {
+                Task task = taskManager.getTaskForId(Integer.parseInt(pathParts[2]));
                 String jsonResponse = gson.toJson(task);
                 if (task != null) {
                     sendText(httpExchange, jsonResponse, 200);
                 } else {
-                    sendNotFound(httpExchange, "Задачи с таким номером id нет", 404);
+                    throw new NotFoundException("Задачи с таким номером id нет");
                 }
-            } else {
+            } else if (pathParts.length == 2 && pathParts[1].equals("tasks")) {
                 ArrayList<Task> tasks = taskManager.getTasks();
                 String jsonResponse = gson.toJson(tasks);
                 sendText(httpExchange, jsonResponse, 200);
             }
+        } catch (NotFoundException notFoundExp) {
+            sendNotFound(httpExchange, notFoundExp.getMessage(), 404);
         } catch (Exception exp) {
             sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }
     }
 
-    public void deleteTask(HttpExchange httpExchange, String requestBodyString) throws IOException {
+    public void deleteTask(HttpExchange httpExchange, String[] pathParts) throws IOException {
         try {
-            if (!requestBodyString.isEmpty()) {
-                int id = Integer.parseInt(requestBodyString);
-                Task task = taskManager.getTaskForId(id);
+            if (pathParts.length == 3 && pathParts[1].equals("tasks")) {
+                Task task = taskManager.getTaskForId(Integer.parseInt(pathParts[2]));
                 if (task != null) {
-                    taskManager.removeTaskForId(id);
+                    taskManager.removeTaskForId(Integer.parseInt(pathParts[2]));
                     sendText(httpExchange, "Задача Task удалена", 200);
                 } else {
-                    sendNotFound(httpExchange, "Задача Task с таким номером id не найдена", 404);
+                    throw new NotFoundException("Задачи с таким номером id нет");
                 }
-            } else {
+            } else if (pathParts.length == 2 && pathParts[1].equals("tasks")) {
                 taskManager.removeAllTask();
                 String message = "Все задачи Task удалены";
                 sendText(httpExchange, message, 200);
             }
+        } catch (NotFoundException notFoundExp) {
+            sendNotFound(httpExchange, notFoundExp.getMessage(), 404);
         } catch (Exception exp) {
             sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }
     }
 
-    public void postTask(HttpExchange httpExchange, String requestBodyString) throws IOException {
+    public void postTask(HttpExchange httpExchange) throws IOException {
         try {
-            String[] taskData = requestBodyString.split(",");
-            String message;
-            if (taskData.length == 5) {
-                Task task = new Task(Integer.parseInt(taskData[0]), taskData[1], taskData[2],
-                                    Duration.parse(taskData[3]), LocalDateTime.parse(taskData[4]));
-                taskManager.updateTask(task);
-                message = "Задача Task обновлена";
+            InputStream requestBody = httpExchange.getRequestBody();
+            String requestBodyString = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
+            Task taskDeserialized = gson.fromJson(requestBodyString, Task.class);
+            if (taskDeserialized == null) {
+                sendNotFound(httpExchange, "Не удалось преобразовать тело запроса в задачу!", 404);
+            } else if (taskDeserialized.getId() != null) {
+                taskManager.updateTask(taskDeserialized);
+                sendText(httpExchange, "Задача Task обновлена", 201);
             } else {
-                Task task = new Task(taskData[0], taskData[1]);
-                taskManager.addInMapTask(task);
-                message = "Задача Task добавлена";
+                taskManager.addInMapTask(taskDeserialized);
+                sendText(httpExchange, "Задача Task добавлена", 201);
             }
-            sendText(httpExchange, message, 201);
         } catch (Exception exp) {
             sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }

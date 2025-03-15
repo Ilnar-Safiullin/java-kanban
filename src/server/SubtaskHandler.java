@@ -9,8 +9,6 @@ import task.Subtask;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
@@ -22,18 +20,18 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
 
     public void handle(HttpExchange httpExchange) throws IOException {
         String method = httpExchange.getRequestMethod();
-        InputStream requestBody = httpExchange.getRequestBody();
-        String requestBodyString = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
+        String requestPath = httpExchange.getRequestURI().getPath();
+        String[] pathParts = requestPath.split("/");
 
         switch (method) {
             case "GET":
-                getSubtask(httpExchange, requestBodyString);
+                getSubtask(httpExchange, pathParts);
                 break;
             case "DELETE":
-                deleteSubtask(httpExchange, requestBodyString);
+                deleteSubtask(httpExchange, pathParts);
                 break;
             case "POST":
-                postSubtask(httpExchange, requestBodyString);
+                postSubtask(httpExchange);
                 break;
             default:
                 sendNotFound(httpExchange, "Метод не поддерживается", 404);
@@ -41,65 +39,64 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
         }
     }
 
-    public void getSubtask(HttpExchange httpExchange, String requestBodyString) throws IOException {
+    public void getSubtask(HttpExchange httpExchange, String[] pathParts) throws IOException {
         try {
-            if (!requestBodyString.isEmpty()) {
-                int id = Integer.parseInt(requestBodyString);
-                Subtask subtask = taskManager.getSubtasksForId(id);
+            if (pathParts.length == 3 && pathParts[1].equals("subtasks")) {
+                Subtask subtask = taskManager.getSubtasksForId(Integer.parseInt(pathParts[2]));
                 String jsonResponse = gson.toJson(subtask);
                 if (subtask != null) {
                     sendText(httpExchange, jsonResponse, 200);
                 } else {
-                    sendNotFound(httpExchange, "Задачи с таким номером id нет", 404);
+                    throw new NotFoundException("Задачи с таким номером id нет");
                 }
-            } else {
+            } else if (pathParts.length == 2 && pathParts[1].equals("subtasks")) {
                 ArrayList<Subtask> subtasks = taskManager.getSubtasks();
                 String jsonResponse = gson.toJson(subtasks);
                 sendText(httpExchange, jsonResponse, 200);
             }
+        } catch (NotFoundException notFoundExp) {
+            sendNotFound(httpExchange, notFoundExp.getMessage(), 404);
         } catch (Exception exp) {
             sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }
     }
 
-    public void deleteSubtask(HttpExchange httpExchange, String requestBodyString) throws IOException {
+    public void deleteSubtask(HttpExchange httpExchange, String[] pathParts) throws IOException {
         try {
-            if (!requestBodyString.isEmpty()) {
-                int id = Integer.parseInt(requestBodyString);
-                Subtask subtask = taskManager.getSubtasksForId(id);
+            if (pathParts.length == 3 && pathParts[1].equals("subtasks")) {
+                Subtask subtask = taskManager.getSubtasksForId(Integer.parseInt(pathParts[2]));
                 if (subtask != null) {
-                    taskManager.removeEpicForId(id);
+                    taskManager.removeSubtaskForId(Integer.parseInt(pathParts[2]));
                     sendText(httpExchange, "Задача удалена", 200);
                 } else {
-                    sendNotFound(httpExchange, "Задача с таким номером id не найдена", 404);
+                    throw new NotFoundException("Задачи с таким номером id нет");
                 }
-            } else {
+            } else if (pathParts.length == 2 && pathParts[1].equals("subtasks")) {
                 taskManager.removeAllSubtasks();
                 String message = "Все задачи Subtask удалены";
                 sendText(httpExchange, message, 200);
             }
+        } catch (NotFoundException notFoundExp) {
+            sendNotFound(httpExchange, notFoundExp.getMessage(), 404);
         } catch (Exception exp) {
             sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }
     }
 
-    public void postSubtask(HttpExchange httpExchange, String requestBodyString) throws IOException {
+    public void postSubtask(HttpExchange httpExchange) throws IOException {
         try {
-            String[] subtaskInfo = requestBodyString.split(",");
-            String message;
-            if (subtaskInfo.length == 6) {
-                Subtask subtask = new Subtask(Integer.parseInt(subtaskInfo[0]), subtaskInfo[1], subtaskInfo[2],
-                                              Integer.parseInt(subtaskInfo[3]), Duration.parse(subtaskInfo[4]),
-                                              LocalDateTime.parse(subtaskInfo[5]));
-                taskManager.updateSubtask(subtask);
-                message = "Задача Subtask обновлена";
+            InputStream requestBody = httpExchange.getRequestBody();
+            String requestBodyString = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
+            Subtask subtaskDeserialized = gson.fromJson(requestBodyString, Subtask.class);
+            if (subtaskDeserialized == null) {
+                sendNotFound(httpExchange, "Не удалось преобразовать тело запроса в задачу!", 404);
+            } else if (subtaskDeserialized.getId() != null) {
+                taskManager.updateSubtask(subtaskDeserialized);
+                sendText(httpExchange, "Задача Subtask обновлена", 201);
             } else {
-                Subtask subtask = new Subtask(subtaskInfo[0], subtaskInfo[1], Integer.parseInt(subtaskInfo[2]),
-                                              Duration.parse(subtaskInfo[3]), LocalDateTime.parse(subtaskInfo[4]));
-                taskManager.addInMapSubtask(subtask);
-                message = "Задача Subtask добавлена";
+                taskManager.addInMapSubtask(subtaskDeserialized);
+                sendText(httpExchange, "Задача Subtask добавлена", 201);
             }
-            sendText(httpExchange, message, 201);
         } catch (Exception exp) {
             sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }

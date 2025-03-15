@@ -22,11 +22,13 @@ public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
             if (method.equals("GET")) {
                 List<Task> tasks = taskManager.getPrioritizedTasks();
                 if (tasks == null || tasks.isEmpty()) {
-                    sendNotFound(httpExchange, "Задачи не найдены", 404);
+                    throw new NotFoundException("Задачи не найдены");
                 }
                 String jsonResponse = gson.toJson(tasks);
                 sendText(httpExchange, jsonResponse, 200);
             }
+        } catch (NotFoundException notFoundExp) {
+            sendNotFound(httpExchange, notFoundExp.getMessage(), 404);
         } catch (Exception exp) {
             sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }

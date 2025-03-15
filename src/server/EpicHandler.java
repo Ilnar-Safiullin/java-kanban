@@ -21,18 +21,18 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
 
     public void handle(HttpExchange httpExchange) throws IOException {
         String method = httpExchange.getRequestMethod();
-        InputStream requestBody = httpExchange.getRequestBody();
-        String requestBodyString = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
+        String requestPath = httpExchange.getRequestURI().getPath();
+        String[] pathParts = requestPath.split("/");
 
         switch (method) {
             case "GET":
-                getEpic(httpExchange, requestBodyString);
+                getEpic(httpExchange, pathParts);
                 break;
             case "DELETE":
-                deleteEpic(httpExchange, requestBodyString);
+                deleteEpic(httpExchange, pathParts);
                 break;
             case "POST":
-                postEpic(httpExchange, requestBodyString);
+                postEpic(httpExchange);
                 break;
             default:
                 sendNotFound(httpExchange, "Метод не поддерживается", 404);
@@ -40,74 +40,75 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
         }
     }
 
-    public void getEpic(HttpExchange httpExchange, String requestBodyString) throws IOException {
+    public void getEpic(HttpExchange httpExchange, String[] pathParts) throws IOException {
         try {
-            String requestPath = httpExchange.getRequestURI().getPath();
-            String[] pathParts = requestPath.split("/");
-            if (pathParts.length == 2 && !requestBodyString.isEmpty()) {
-                int id = Integer.parseInt(requestBodyString);
+            if (pathParts.length == 3 && pathParts[1].equals("epics")) {
+                int id = Integer.parseInt(pathParts[2]);
                 Epic epic = taskManager.getEpicForId(id);
                 String jsonResponse = gson.toJson(epic);
                 if (epic != null) {
                     sendText(httpExchange, jsonResponse, 200);
                 } else {
-                    sendNotFound(httpExchange, "Задачи с таким номером id нет", 404);
+                    throw new NotFoundException("Задачи с таким номером id нет");
                 }
-            } else if (pathParts.length == 2 && requestBodyString.isEmpty()) { //получить все субтаски у Эпика
+            } else if (pathParts.length == 2 && pathParts[1].equals("epics")) { //получить все субтаски у Эпика
                 ArrayList<Epic> epics = taskManager.getEpics();
                 String jsonResponse = gson.toJson(epics);
                 sendText(httpExchange, jsonResponse, 200);
-            } else if (pathParts.length == 3 && pathParts[2].equals("subtasks")) {
-                int id = Integer.parseInt(requestBodyString);
+            } else if (pathParts.length == 4 && pathParts[1].equals("epics") && pathParts[3].equals("subtasks")) {
+                int id = Integer.parseInt(pathParts[2]);
                 Epic epic = taskManager.getEpicForId(id);
                 if (epic != null) {
                     List<Integer> subtasksId = epic.getSubTaskIdList();
                     String jsonResponse = gson.toJson(subtasksId);
                     sendText(httpExchange, jsonResponse, 200);
                 } else {
-                    sendNotFound(httpExchange, "Задачи с таким номером id нет", 404);
+                    throw new NotFoundException("Задачи с таким номером id нет");
                 }
             }
+        } catch (NotFoundException notFoundExp) {
+            sendNotFound(httpExchange, notFoundExp.getMessage(), 404);
         } catch (Exception exp) {
             sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }
     }
 
-    public void deleteEpic(HttpExchange httpExchange, String requestBodyString) throws IOException {
+    public void deleteEpic(HttpExchange httpExchange, String[] pathParts) throws IOException {
         try {
-            if (!requestBodyString.isEmpty()) {
-                int id = Integer.parseInt(requestBodyString);
-                Epic epic = taskManager.getEpicForId(id);
+            if (pathParts.length == 3 && pathParts[1].equals("epics")) {
+                Epic epic = taskManager.getEpicForId(Integer.parseInt(pathParts[2]));
                 if (epic != null) {
-                    taskManager.removeEpicForId(id);
+                    taskManager.removeEpicForId(Integer.parseInt(pathParts[2]));
                     sendText(httpExchange, "Задача удалена", 200);
                 } else {
-                    sendNotFound(httpExchange, "Задача с таким номером id не найдена", 404);
+                    throw new NotFoundException("Задачи с таким номером id нет");
                 }
-            } else {
+            } else if (pathParts.length == 2 && pathParts[1].equals("epics")) {
                 taskManager.removeAllEpics();
                 String message = "Все задачи Epic удалены";
                 sendText(httpExchange, message, 200);
             }
+        } catch (NotFoundException notFoundExp) {
+            sendNotFound(httpExchange, notFoundExp.getMessage(), 404);
         } catch (Exception exp) {
             sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }
     }
 
-    public void postEpic(HttpExchange httpExchange, String requestBodyString) throws IOException {
+    public void postEpic(HttpExchange httpExchange) throws IOException {
         try {
-            String[] epicInfo = requestBodyString.split(",");
-            String message;
-            if (epicInfo.length == 3) {
-                Epic epic = new Epic(Integer.parseInt(epicInfo[0]), epicInfo[1], epicInfo[2]);
-                taskManager.updateEpic(epic);
-                message = "Задача Epic обновлена";
+            InputStream requestBody = httpExchange.getRequestBody();
+            String requestBodyString = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
+            Epic epicDeserialized = gson.fromJson(requestBodyString, Epic.class);
+            if (epicDeserialized == null) {
+                sendNotFound(httpExchange, "Не удалось преобразовать тело запроса в задачу!", 404);
+            } else if (epicDeserialized.getId() != null) {
+                taskManager.updateEpic(epicDeserialized);
+                sendText(httpExchange, "Задача Epic обновлена", 201);
             } else {
-                Epic epic = new Epic(epicInfo[0], epicInfo[1]);
-                taskManager.addInMapEpic(epic);
-                message = "Задача Epic добавлена";
+                taskManager.addInMapEpic(epicDeserialized);
+                sendText(httpExchange, "Задача Epic добавлена", 201);
             }
-            sendText(httpExchange, message, 201);
         } catch (Exception exp) {
             sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }
