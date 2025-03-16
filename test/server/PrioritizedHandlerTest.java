@@ -1,7 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import manager.Managers;
+import manager.InMemoryTaskManager;
 import manager.TaskManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,12 +22,20 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PrioritizedHandlerTest {
-    private HttpTaskServer server = new HttpTaskServer();
-    private TaskManager manager = Managers.getDefault();
+    private TaskManager manager = new InMemoryTaskManager();
+    private HttpTaskServer server;
     private Task task;
     private Epic epic;
     private Subtask subtask;
     private Gson gson = HttpTaskServer.getGson();
+
+    {
+        try {
+            server = new HttpTaskServer(manager);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @BeforeEach
     public void setUP() throws IOException {
@@ -60,5 +68,7 @@ public class PrioritizedHandlerTest {
 
         assertEquals(200, response.statusCode(), "PrioritizedHandler вернул не тот ответ");
         assertEquals(2, receivedTasks.size(), "PrioritizedHandler не вернул List<Tasks>");
+        assertEquals(List.of(subtask, task), manager.getPrioritizedTasks(),
+                "PrioritizedHandler вернул не корректный список приоритетов");
     }
 }

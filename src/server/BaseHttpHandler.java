@@ -19,14 +19,6 @@ public class BaseHttpHandler {
         h.close();
     }
 
-    protected void sendNotFound(HttpExchange h, String text, int code) throws IOException {
-        byte[] resp = text.getBytes(StandardCharsets.UTF_8);
-        h.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
-        h.sendResponseHeaders(code, resp.length);
-        h.getResponseBody().write(resp);
-        h.close();
-    }
-
     protected Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .registerTypeAdapter(Duration.class, new DurationTypeAdapter())

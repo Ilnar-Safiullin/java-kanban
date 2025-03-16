@@ -2,7 +2,6 @@ package server;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import manager.Managers;
 import manager.TaskManager;
 import task.Task;
 
@@ -14,8 +13,8 @@ import java.util.ArrayList;
 public class TaskHandler extends BaseHttpHandler implements HttpHandler {
     TaskManager taskManager;
 
-    public TaskHandler() {
-        this.taskManager = Managers.getDefault();
+    public TaskHandler(TaskManager taskManager) {
+        this.taskManager = taskManager;
     }
 
     public void handle(HttpExchange httpExchange) throws IOException {
@@ -34,7 +33,7 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
                 postTask(httpExchange);
                 break;
             default:
-                sendNotFound(httpExchange, "Метод не поддерживается", 404);
+                sendText(httpExchange, "Метод не поддерживается", 404);
                 break;
         }
     }
@@ -55,31 +54,24 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
                 sendText(httpExchange, jsonResponse, 200);
             }
         } catch (NotFoundException notFoundExp) {
-            sendNotFound(httpExchange, notFoundExp.getMessage(), 404);
+            sendText(httpExchange, notFoundExp.getMessage(), 404);
         } catch (Exception exp) {
-            sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
+            sendText(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }
     }
 
     public void deleteTask(HttpExchange httpExchange, String[] pathParts) throws IOException {
         try {
             if (pathParts.length == 3 && pathParts[1].equals("tasks")) {
-                Task task = taskManager.getTaskForId(Integer.parseInt(pathParts[2]));
-                if (task != null) {
-                    taskManager.removeTaskForId(Integer.parseInt(pathParts[2]));
-                    sendText(httpExchange, "Задача Task удалена", 200);
-                } else {
-                    throw new NotFoundException("Задачи с таким номером id нет");
-                }
+                taskManager.removeTaskForId(Integer.parseInt(pathParts[2]));
+                sendText(httpExchange, "Задача Task удалена", 200);
             } else if (pathParts.length == 2 && pathParts[1].equals("tasks")) {
                 taskManager.removeAllTask();
                 String message = "Все задачи Task удалены";
                 sendText(httpExchange, message, 200);
             }
-        } catch (NotFoundException notFoundExp) {
-            sendNotFound(httpExchange, notFoundExp.getMessage(), 404);
         } catch (Exception exp) {
-            sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
+            sendText(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }
     }
 
@@ -89,7 +81,7 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
             String requestBodyString = new String(requestBody.readAllBytes(), StandardCharsets.UTF_8);
             Task taskDeserialized = gson.fromJson(requestBodyString, Task.class);
             if (taskDeserialized == null) {
-                sendNotFound(httpExchange, "Не удалось преобразовать тело запроса в задачу!", 404);
+                sendText(httpExchange, "Не удалось преобразовать тело запроса в задачу!", 404);
             } else if (taskDeserialized.getId() != null) {
                 taskManager.updateTask(taskDeserialized);
                 sendText(httpExchange, "Задача Task обновлена", 201);
@@ -98,7 +90,7 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
                 sendText(httpExchange, "Задача Task добавлена", 201);
             }
         } catch (Exception exp) {
-            sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
+            sendText(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }
     }
 }

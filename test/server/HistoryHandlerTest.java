@@ -1,11 +1,12 @@
 package server;
 
 import com.google.gson.Gson;
-import manager.Managers;
+import manager.InMemoryTaskManager;
 import manager.TaskManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import task.Epic;
 import task.Task;
 
 import java.io.IOException;
@@ -20,10 +21,19 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HistoryHandlerTest {
-    private HttpTaskServer server = new HttpTaskServer();
-    private TaskManager manager = Managers.getDefault();
+    private TaskManager manager = new InMemoryTaskManager();
+    private HttpTaskServer server;
     private Task task;
+    private Epic epic;
     private Gson gson = HttpTaskServer.getGson();
+
+    {
+        try {
+            server = new HttpTaskServer(manager);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @BeforeEach
     public void setUP() throws IOException {
@@ -32,7 +42,9 @@ public class HistoryHandlerTest {
         manager.removeAllSubtasks();
         server.startServer();
         task = new Task("Test 2", "Testing task 2", Duration.ofMinutes(5), LocalDateTime.now());
+        epic = new Epic("Test", "Testing Epic");
         manager.addInMapTask(task);
+        manager.addInMapEpic(epic);
     }
 
     @AfterEach
@@ -42,6 +54,7 @@ public class HistoryHandlerTest {
 
     @Test
     public void historyGET() throws IOException, InterruptedException {
+        manager.getEpicForId(epic.getId());
         manager.getTaskForId(task.getId());
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/history");
@@ -51,6 +64,6 @@ public class HistoryHandlerTest {
         List<Task> receivedTasks = gson.fromJson(responseBody, new TaskListTypeToken().getType());
 
         assertEquals(200, response.statusCode(), "HistoryHandler вернул не тот ответ");
-        assertEquals(1, receivedTasks.size(), "HistoryHandler не вернул List<Tasks>");
+        assertEquals(2, receivedTasks.size(), "HistoryHandler не вернул историю List<Tasks>");
     }
 }

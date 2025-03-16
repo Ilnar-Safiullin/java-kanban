@@ -2,7 +2,7 @@ package server;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import manager.Managers;
+import manager.InMemoryTaskManager;
 import manager.TaskManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,10 +23,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class EpicHandlerTest {
-    private HttpTaskServer server = new HttpTaskServer();
-    private TaskManager manager = Managers.getDefault();
+    private TaskManager manager = new InMemoryTaskManager();
+    private HttpTaskServer server;
     private Epic epic;
     private Gson gson = HttpTaskServer.getGson();
+
+    {
+        try {
+            server = new HttpTaskServer(manager);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @BeforeEach
     public void setUP() throws IOException {
@@ -128,5 +136,13 @@ public class EpicHandlerTest {
 
         assertEquals(200, response.statusCode());
         assertEquals(1, receivedEpics.size(), "EpicHandler не вернул SubtaskIdList у Epic");
+
+        client = HttpClient.newHttpClient();
+        url = URI.create("http://localhost:8080/epics/" + Integer.MAX_VALUE + "/subtasks/");
+        request = HttpRequest.newBuilder().uri(url).GET().build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(404, response.statusCode(),
+                "EpicHandler вернул не тот ответ если мы отправили не сущ-ий номер айди");
     }
 }

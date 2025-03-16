@@ -2,7 +2,6 @@ package server;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import manager.Managers;
 import manager.TaskManager;
 import task.Task;
 
@@ -12,15 +11,15 @@ import java.util.ArrayList;
 public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
     TaskManager taskManager;
 
-    public HistoryHandler() {
-        this.taskManager = Managers.getInMemoryTaskManger();
+    public HistoryHandler(TaskManager taskManager) {
+        this.taskManager = taskManager;
     }
 
     public void handle(HttpExchange httpExchange) throws IOException {
         try {
             String method = httpExchange.getRequestMethod();
             if (method.equals("GET")) {
-                ArrayList<Task> tasks = taskManager.getTasks();
+                ArrayList<Task> tasks = taskManager.getHistory();
                 if (tasks == null || tasks.isEmpty()) {
                     throw new NotFoundException("Задачи не найдены");
                 }
@@ -28,9 +27,9 @@ public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
                 sendText(httpExchange, jsonResponse, 200);
             }
         } catch (NotFoundException notFoundExp) {
-            sendNotFound(httpExchange, notFoundExp.getMessage(), 404);
+            sendText(httpExchange, notFoundExp.getMessage(), 404);
         } catch (Exception exp) {
-            sendNotFound(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
+            sendText(httpExchange, "При выполнении запроса возникла ошибка " + exp.getMessage(), 404);
         }
     }
 }

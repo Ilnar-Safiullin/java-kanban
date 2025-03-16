@@ -3,14 +3,9 @@ package manager;
 import java.io.File;
 
 public class Managers {
-    private static TaskManager taskManager;
-
 
     public static TaskManager getDefault() {
-        if (taskManager == null) {
-            taskManager = new FileBackedTaskManager(new File(".\\resources\\task.csv"));
-        }
-        return taskManager;
+        return new FileBackedTaskManager(new File(".\\resources\\task.csv"));
     }
 
     public static HistoryManager getDefaultHistory() {
@@ -18,9 +13,6 @@ public class Managers {
     }
 
     public static TaskManager getInMemoryTaskManger() {
-        if (taskManager == null) {
-            taskManager = new InMemoryTaskManager();
-        }
-        return taskManager;
+        return new InMemoryTaskManager();
     }
 }
