@@ -9,7 +9,6 @@ import task.Task;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -191,5 +190,12 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.addInMapTask(task2);
         List<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
         assertEquals(2, prioritizedTasks.size(), "Должна остаться только 2 задачи из-за пересечения");
+    }
+
+    @Test
+    public void getSubtasksByEpicTest() {
+        assertEquals(subtask.getId(), taskManager.getSubtasksByEpic(epic.getId()).get(0),
+                "Не получили айди субтаскок у конкретного Эпика");
+
     }
 }
