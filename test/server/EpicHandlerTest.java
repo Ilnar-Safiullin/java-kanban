@@ -23,24 +23,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class EpicHandlerTest {
-    private TaskManager manager = new InMemoryTaskManager();
+    private TaskManager manager;
     private HttpTaskServer server;
     private Epic epic;
     private Gson gson = HttpTaskServer.getGson();
 
-    {
-        try {
-            server = new HttpTaskServer(manager);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @BeforeEach
     public void setUP() throws IOException {
-        manager.removeAllTask();
-        manager.removeAllEpics();
-        manager.removeAllSubtasks();
+        manager = new InMemoryTaskManager();
+        server = new HttpTaskServer(manager);
         server.startServer();
         epic = new Epic("Test", "Testing Epic");
     }

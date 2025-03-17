@@ -53,7 +53,7 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
                 ArrayList<Epic> epics = taskManager.getEpics();
                 String jsonResponse = gson.toJson(epics);
                 sendText(httpExchange, jsonResponse, 200);
-            } else if (pathParts.length == 4 && pathParts[1].equals("epics") && pathParts[3].equals("subtasks")) { //получить все субтаски у Эпика
+            } else if (pathParts.length == 4 && pathParts[1].equals("epics") && pathParts[3].equals("subtasks")) { //getSubTaskIdList() если использовать это то тогда мы должны буем получить сперва эпик (этот метод класса эпик же), что добавит его в историю, а ты сказал так нельзя
                 List<Integer> subtasksId = taskManager.getSubtasksByEpic(Integer.parseInt(pathParts[2]));
                 if (subtasksId != null) {
                     String jsonResponse = gson.toJson(subtasksId);
